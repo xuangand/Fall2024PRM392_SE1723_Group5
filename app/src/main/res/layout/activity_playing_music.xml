@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#3E1E1E">
+
+<!--    &lt;!&ndash; Top Bar with Song and Video buttons &ndash;&gt;-->
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:gravity="center">-->
+
+<!--        <Button-->
+<!--            android:id="@+id/songButton"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:text="Song"-->
+<!--            android:textColor="#ffffff"-->
+<!--            android:background="?attr/selectableItemBackground"-->
+<!--            android:textAllCaps="false" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/videoButton"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:text="Video"-->
+<!--            android:textColor="#ffffff"-->
+<!--            android:background="?attr/selectableItemBackground"-->
+<!--            android:textAllCaps="false" />-->
+<!--    </LinearLayout>-->
+
+    <!-- Album Art -->
+    <androidx.cardview.widget.CardView
+        app:cardCornerRadius="10dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+    <ImageView
+        android:id="@+id/albumArt"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/album_art_placeholder"/>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Song Title and Artist -->
+    <TextView
+        android:id="@+id/songTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="輪廻 - reincarnation"
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="start"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"/>
+
+    <TextView
+        android:id="@+id/artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="V.W.P"
+        android:textColor="#ffffff"
+        android:textSize="14sp"
+        android:gravity="start"
+        android:layout_marginLeft="16dp"/>
+
+    <!-- Like, Dislike, Save and Share Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp">
+
+            <ImageButton
+                android:id="@+id/likeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/ic_like" />
+
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="1.6K"
+                android:textColor="#ffffff" />
+
+            <ImageButton
+                android:id="@+id/dislikeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/ic_dislike" />
+
+<!--        <ImageButton-->
+<!--            android:id="@+id/commentButton"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:src="@drawable/ic_comment"-->
+<!--            android:background="?attr/selectableItemBackground"-->
+<!--            android:layout_marginStart="16dp" />-->
+
+
+<!--        <ImageButton-->
+
+<!--            android:id="@+id/saveButton"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:src="@drawable/ic_save"-->
+<!--            android:background="@drawable/roundcorner"-->
+<!--            android:layout_marginStart="16dp" />-->
+
+        <Button
+            android:id="@+id/ButtonTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#18FFFFFF"
+            android:drawableLeft="@drawable/ic_save"
+            android:text="Save"
+            android:layout_marginLeft="16dp"
+            android:textColor="#FFFFFF" />
+        <Button
+            android:id="@+id/DownloadButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#18FFFFFF"
+            android:drawableLeft="@drawable/ic_download"
+            android:text="Download"
+            android:layout_marginLeft="16dp"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+    <!-- Progress Bar -->
+    <SeekBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:progress="20"
+        android:progressTint="#fff"
+        android:thumbTint="#fff"
+        android:max="100" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:text="0:00"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:layout_alignParentEnd="true"
+            android:text="0:00"/>
+    </RelativeLayout>
+
+
+    <!-- Media Controls (Previous, Play/Pause, Next) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp">
+
+        <ImageButton
+            android:id="@+id/previousButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_previous"
+            android:background="?attr/selectableItemBackground" />
+
+        <ImageButton
+            android:id="@+id/playPauseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_play"
+            android:background="?attr/selectableItemBackground"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp" />
+
+        <ImageButton
+            android:id="@+id/nextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_next"
+            android:background="?attr/selectableItemBackground" />
+    </LinearLayout>
+
+    <!-- Footer with Up Next, Lyrics, Related -->
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:gravity="center">-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/upNext"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="UP NEXT"-->
+<!--            android:textColor="#ffffff"-->
+<!--            android:layout_marginEnd="32dp" />-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/lyrics"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="LYRICS"-->
+<!--            android:textColor="#ffffff"-->
+<!--            android:layout_marginEnd="32dp" />-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/related"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="RELATED"-->
+<!--            android:textColor="#ffffff" />-->
+
+<!--    </LinearLayout>-->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:backgroundTint="#00FFFFFF"
+            app:itemTextColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_alignParentBottom="true"
+            app:menu="@menu/playing_music_menu">
+
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>
