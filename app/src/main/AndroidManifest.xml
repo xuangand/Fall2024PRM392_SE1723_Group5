@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Spotifi">
         <activity
+            android:name=".ArtistDetail"
+            android:exported="false" />
+        <activity
             android:name=".PlayingMusic"
             android:exported="true">
             <intent-filter>
