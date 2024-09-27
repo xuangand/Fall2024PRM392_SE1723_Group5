@@ -18,27 +18,48 @@
         android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:layout_marginBottom="50dp"/>
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:text="Sign in"
+        android:text="Create Account"
+        android:textSize="28sp"
         android:textColor="#FFFFFF"
-        android:textSize="28sp" />
+        android:layout_marginBottom="24dp"/>
 
     <!-- Email/Phone Number Input -->
     <EditText
-        android:id="@+id/email_phone_input"
+        android:id="@+id/email_input"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="Email Address/Phone Number"
+        android:hint="Email Address"
         android:textColorHint="#D4B8B4"
         android:backgroundTint="#D4B8B4"
         android:textColor="#FFFFFF"
         android:padding="10dp"
         android:layout_marginBottom="16dp"/>
 
+    <EditText
+        android:id="@+id/phone_input"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Phone number"
+        android:textColorHint="#D4B8B4"
+        android:backgroundTint="#D4B8B4"
+        android:textColor="#FFFFFF"
+        android:padding="10dp"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/username_input"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Username"
+        android:textColorHint="#D4B8B4"
+        android:backgroundTint="#D4B8B4"
+        android:textColor="#FFFFFF"
+        android:padding="10dp"
+        android:inputType="textPassword"
+        android:layout_marginBottom="24dp"/>
     <!-- Password Input -->
     <EditText
         android:id="@+id/password_input"
@@ -54,16 +75,14 @@
 
     <!-- Login Button -->
     <Button
-        android:id="@+id/login_button"
+        android:id="@+id/register_button"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:backgroundTint="#0186F9"
-        android:text="Login"
+        android:text="Register"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:layout_marginBottom="16dp"/>
-
-
 
 
 </LinearLayout>
