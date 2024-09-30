@@ -120,3 +120,4 @@ public class SearchActivity extends AppCompatActivity {
         listViewResults.setVisibility(ListView.VISIBLE);
     }
 }
+
