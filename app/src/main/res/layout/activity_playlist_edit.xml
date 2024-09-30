@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#1E1E1E">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/song_cover_image"
+            android:scaleType="centerCrop"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="虹の彼方に - N1j1 No Kanatani"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ReoNa • 4:54"
+                android:textColor="#AAAAAA"
+                android:textSize="14sp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#333333"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add to queue"
+        android:textColor="#FFFFFF"
+        android:padding="16dp"
+        android:drawableStart="@drawable/ic_add_to_queue"
+        android:drawablePadding="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save to playlist"
+        android:textColor="#FFFFFF"
+        android:padding="16dp"
+        android:drawableStart="@drawable/ic_save_to_playlist"
+        android:drawablePadding="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Remove from playlist"
+        android:textColor="#FFFFFF"
+        android:padding="16dp"
+        android:drawableStart="@drawable/ic_remove"
+        android:drawablePadding="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Go to artist"
+        android:textColor="#FFFFFF"
+        android:padding="16dp"
+        android:drawableStart="@drawable/ic_face"
+        android:drawablePadding="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View song credits"
+        android:textColor="#FFFFFF"
+        android:padding="16dp"
+        android:drawableStart="@drawable/ic_view_credits"
+        android:drawablePadding="16dp"/>
+
+</LinearLayout>
+<!-- End of Layout -->
