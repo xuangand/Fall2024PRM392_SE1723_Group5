@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,23 +14,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Spotifi">
         <activity
-            android:name=".SearchActivity"
+            android:name=".Activities.QueueSong"
             android:exported="false" />
         <activity
-            android:name=".SignInActivity"
-            android:exported="false" />
-
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-
-        <activity
-            android:name=".ArtistDetail"
+            android:name=".Activities.SongDetails"
             android:exported="false" />
         <activity
-            android:name=".PlayingMusic"
+            android:name=".Activities.Lyrics"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.SearchActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.SignInActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.ArtistDetail"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.PlayingMusic"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
