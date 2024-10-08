@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#233333">
+
+    <!-- Top Bar with song info and Play button -->
+    <ImageView
+        android:id="@+id/currentSongThumbnail"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/album_cover_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/currentSongTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="happy birthday?"
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/currentSongThumbnail"
+        app:layout_constraintEnd_toStartOf="@id/playPauseButton"
+        app:layout_constraintTop_toTopOf="@id/currentSongThumbnail" />
+
+    <TextView
+        android:id="@+id/currentArtist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="AliA"
+        android:textColor="#cfcfcf"
+        android:textSize="14sp"
+        android:maxLines="1"
+        app:layout_constraintStart_toStartOf="@id/currentSongTitle"
+        app:layout_constraintEnd_toEndOf="@id/currentSongTitle"
+        app:layout_constraintTop_toBottomOf="@id/currentSongTitle" />
+
+    <ImageButton
+        android:id="@+id/playPauseButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_play_mini"
+        android:background="?attr/selectableItemBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Tab layout for UP NEXT, LYRICS, RELATED -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/currentSongThumbnail">
+
+        <TextView
+            android:id="@+id/upNextTab"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="UP NEXT"
+            android:textColor="#ffffff"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/lyricsTab"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/lyricsTab"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="LYRICS"
+            android:textColor="#ffffff"
+            android:textSize="16sp"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="@id/upNextTab"
+            app:layout_constraintEnd_toStartOf="@id/relatedTab"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/relatedTab"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="RELATED"
+            android:textColor="#ffffff"
+            android:textSize="16sp"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="@id/lyricsTab"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Underline indicator for the active tab (UP NEXT) -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="4dp"
+            android:background="#ffffff"
+            app:layout_constraintEnd_toEndOf="@+id/upNextTab"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/upNextTab" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Save button and playing from music label -->
+    <TextView
+        android:id="@+id/playingFromLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Playing from"
+        android:textColor="#b8b8b8"
+        android:textSize="14sp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        android:layout_marginStart="16dp" />
+
+    <TextView
+        android:id="@+id/playingSource"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Musics"
+        android:textColor="#ffffff"
+        android:textSize="14sp"
+        android:layout_marginStart="4dp"
+        app:layout_constraintStart_toEndOf="@id/playingFromLabel"
+        app:layout_constraintTop_toTopOf="@id/playingFromLabel" />
+
+    <!-- Queue list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/queueRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:scrollbars="vertical"
+        app:layout_constraintTop_toBottomOf="@id/playingFromLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

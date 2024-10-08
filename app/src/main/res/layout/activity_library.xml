@@ -138,39 +138,39 @@
         android:gravity="center"
         android:padding="16dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="#111111">
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:background="#111111">-->
 
-        <ImageButton
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@android:drawable/ic_menu_home"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="16dp"
-            app:tint="@android:color/white" />
+<!--        <ImageButton-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:src="@android:drawable/ic_menu_home"-->
+<!--            android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--            android:padding="16dp"-->
+<!--            app:tint="@android:color/white" />-->
 
-        <ImageButton
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@android:drawable/ic_menu_search"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="16dp"
-            app:tint="@android:color/white" />
+<!--        <ImageButton-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:src="@android:drawable/ic_menu_search"-->
+<!--            android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--            android:padding="16dp"-->
+<!--            app:tint="@android:color/white" />-->
 
-        <ImageButton
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/ic_library"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="16dp"
-            app:tint="@android:color/white" />
+<!--        <ImageButton-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:src="@drawable/ic_library"-->
+<!--            android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--            android:padding="16dp"-->
+<!--            app:tint="@android:color/white" />-->
 
-    </LinearLayout>
+<!--    </LinearLayout>-->
 
 </LinearLayout>
