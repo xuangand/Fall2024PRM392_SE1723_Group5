@@ -21,6 +21,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.io.IOException;
 
+import fu.se.spotifi.DAO.SongDAO;
+import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.R;
 
 public class PlayingMusic extends AppCompatActivity {
@@ -48,6 +50,8 @@ public class PlayingMusic extends AppCompatActivity {
         ImageButton nextButton = findViewById(R.id.nextButton);
         ImageButton back_dropdownButton = findViewById(R.id.back_dropdownButton);
         ImageView albumArt = findViewById(R.id.albumArt);
+        SpotifiDatabase db = SpotifiDatabase.getDatabase(this);
+        SongDAO songDAO;
 
         MediaMetadataRetriever mediaMetadataRetriever;
 
