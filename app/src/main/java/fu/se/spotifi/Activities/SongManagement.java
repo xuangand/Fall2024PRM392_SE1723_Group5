@@ -1,6 +1,7 @@
 package fu.se.spotifi.Activities;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,10 +28,14 @@ import androidx.room.Room;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StreamDownloadTask;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -51,7 +56,7 @@ public class SongManagement extends AppCompatActivity {
     private ArrayList<Song> songList;
     private ArrayAdapter<Song> myAdapter;
     private SpotifiDatabase db;
-    private String title, duration, artist;
+    private String title, duration, artist, thumbnail;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +67,7 @@ public class SongManagement extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+        // <editor-fold desc="Declare variable">
         btnInsert = (Button) findViewById(R.id.btnInsert);
         btnUpdate = (Button) findViewById(R.id.btnUpdate);
         btnDelete = (Button) findViewById(R.id.btnDelete);
@@ -73,22 +78,19 @@ public class SongManagement extends AppCompatActivity {
         songList = new ArrayList<>();
         myAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, songList);
         lv.setAdapter(myAdapter);
+        // </editor-fold>
 
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                db = SpotifiDatabase.getDatabase(getApplicationContext());
-//                // Perform database operations here
-//            }
-//        }).start();
+        // <editor-fold desc="Init database and firebase">
         db = Room.databaseBuilder(getApplicationContext(), SpotifiDatabase.class, "spotifi_database").allowMainThreadQueries().build();
         grandPermission();
+        FirebaseApp.initializeApp(this);
+        // </editor-fold>
 
         btnInsert.setOnClickListener(v -> {
             String url = edtName.getText().toString();
-            retrieveMetadata(url);
-            Song song = new Song(title, artist, url, duration);
-            db.songDAO().addSong(song);
+            retrieveMetadataAndUploadToDatabase(url);
+            System.out.println("Thumbnail here: " + thumbnail);
+
             Toast.makeText(SongManagement.this, "Insert Successful", Toast.LENGTH_SHORT).show();
             ShowList();
         });
@@ -118,44 +120,9 @@ public class SongManagement extends AppCompatActivity {
         songList.addAll(db.songDAO().loadAllSongs());
         myAdapter.notifyDataSetChanged();
     }
-    public void retrieveMetadata(String url){
+    public void retrieveMetadataAndUploadToDatabase(String url){
 
         FFmpegMediaMetadataRetriever mmr = new FFmpegMediaMetadataRetriever();
-        //FirebaseStorage storage = FirebaseStorage.getInstance();
-        //StorageReference storageRef = storage.getReference();
-        //StorageReference musicRef = storageRef.child("songs/Ima Boku Underground kara by Kessoku Band.mp3");
-//        musicRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//            @Override
-//            public void onSuccess(Uri uri) {
-//                // The download URL is successfully retrieved
-//                String url = uri.toString();
-//
-//                try {
-//                    // Use the URL directly as the data source
-//                    mmr.setDataSource(url, new HashMap<String, String>());
-//
-//                    // Retrieve metadata
-//                    String titleExtracted = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_TITLE);
-//                    String artistExtracted = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
-//                    //String album = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
-//                    String durationExtracted = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION);
-//                    title = titleExtracted != null ? titleExtracted : "Unknown Title";
-//                    artist = artistExtracted != null ? artistExtracted : "Unknown Artist";
-//                    duration = durationExtracted != null ? durationExtracted : "0:00";
-//
-//                    // Use the metadata as needed
-//                } catch (IllegalArgumentException e) {
-//                    // Handle the error if metadata cannot be retrieved
-//                } finally {
-//                    mmr.release();  // Ensure to release the retriever when done
-//                }
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception exception) {
-//                // Handle any errors (e.g., file not found or access denied)
-//            }
-//        });
         try {
             mmr.setDataSource(url);
 
@@ -166,6 +133,28 @@ public class SongManagement extends AppCompatActivity {
             artist = artistExtracted != null ? artistExtracted : "Unknown Artist";
             duration = durationExtracted != null ? durationExtracted : "0:00";
 
+            File albumArtFile = retrieveAlbumArt(SongManagement.this, url, title);
+
+            if (albumArtFile != null) {
+                uploadImageToFirebase(albumArtFile,new UploadCallbacks() {
+                    @Override
+                    public void onSuccess(String downloadUrl) {
+                        // The image was uploaded successfully, and here's the download URL
+                        System.out.println("Image uploaded successfully! Download URL: " + downloadUrl);
+                        thumbnail = downloadUrl;
+                        System.out.println(thumbnail);
+                        Song song = new Song(title, artist, url, duration, thumbnail);
+                        db.songDAO().addSong(song);
+                    }
+
+                    @Override
+                    public void onFailure(Exception exception) {
+                        // The upload failed
+                        System.out.println("Upload failed: " + exception.getMessage());
+                    }
+                });
+            }
+
         }catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -175,5 +164,59 @@ public class SongManagement extends AppCompatActivity {
     public void grandPermission(){
         if (ContextCompat.checkSelfPermission(SongManagement.this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(SongManagement.this, new String[]{Manifest.permission.INTERNET}, 101);
+    }
+    public File retrieveAlbumArt(Context context, String musicFilePath, String title) {
+        FFmpegMediaMetadataRetriever retriever = new FFmpegMediaMetadataRetriever();
+        try {
+            retriever.setDataSource(musicFilePath);
+            byte[] albumArt = retriever.getEmbeddedPicture();
+
+            if (albumArt != null) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length);
+
+                // Save the file in the app's internal storage
+                File outputFile = new File(context.getCacheDir(), title +"_cover.png");
+
+                FileOutputStream out = new FileOutputStream(outputFile);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                out.close();
+
+                return outputFile;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            retriever.release();
+        }
+        return null;
+    }
+    public void uploadImageToFirebase(File imageFile, UploadCallbacks callbacks) {
+        // Get the instance of Firebase Storage
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+
+        // Create a reference to the location where the image will be stored
+        StorageReference storageRef = storage.getReference().child("album_art/" + imageFile.getName());
+
+        // Get the Uri of the file
+        Uri fileUri = Uri.fromFile(imageFile);
+
+        // Start the upload task
+        UploadTask uploadTask = storageRef.putFile(fileUri);
+
+        // Monitor the upload progress
+        uploadTask.addOnSuccessListener(taskSnapshot -> {
+            // Call the callback for success
+            storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                callbacks.onSuccess(uri.toString());
+            });
+
+        }).addOnFailureListener(exception -> {
+            // Call the callback for failure
+            callbacks.onFailure(exception);
+        });
+    }
+    public interface UploadCallbacks {
+        void onSuccess(String downloadUrl);
+        void onFailure(Exception exception);
     }
 }

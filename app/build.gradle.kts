@@ -46,4 +46,5 @@ dependencies {
     implementation (libs.ffmpegmediametadataretriever.core)
     implementation (libs.ffmpegmediametadataretriever.native)
     implementation (libs.firebase.storage)
+    implementation (libs.glide)
 }

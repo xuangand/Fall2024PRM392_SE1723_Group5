@@ -20,13 +20,18 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import fu.se.spotifi.Const.Utils;
 import fu.se.spotifi.DAO.SongDAO;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.R;
+import wseemann.media.FFmpegMediaMetadataRetriever;
 
 public class PlayingMusic extends AppCompatActivity {
-
+    private ScheduledExecutorService executorService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,16 +55,18 @@ public class PlayingMusic extends AppCompatActivity {
         ImageButton nextButton = findViewById(R.id.nextButton);
         ImageButton back_dropdownButton = findViewById(R.id.back_dropdownButton);
         ImageView albumArt = findViewById(R.id.albumArt);
-        SpotifiDatabase db = SpotifiDatabase.getDatabase(this);
+        Utils utils = new Utils();
+
+        SpotifiDatabase db = SpotifiDatabase.getInstance(this);
         SongDAO songDAO;
 
-        MediaMetadataRetriever mediaMetadataRetriever;
+        FFmpegMediaMetadataRetriever ffmmr;
 
         MediaPlayer musicPlayer = MediaPlayer.create(this,R.raw.unlive);
         musicPlayer.setLooping(true);
         musicPlayer.seekTo(0);
 
-        String duration = milisecondsToString(musicPlayer.getDuration());
+        String duration = utils.milisecondsToString(musicPlayer.getDuration());
         endDurationTimer.setText(duration);
 
         seekBar.setMax(musicPlayer.getDuration());
@@ -83,29 +90,45 @@ public class PlayingMusic extends AppCompatActivity {
             }
         });
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (musicPlayer != null){
-                    if(musicPlayer.isPlaying()) {
-                        try {
-                            final double current = musicPlayer.getCurrentPosition();
-                            final String elapseTime = milisecondsToString((int)current);
+        executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleWithFixedDelay(() -> {
+            if (musicPlayer != null && musicPlayer.isPlaying()) {
+                final double current = musicPlayer.getCurrentPosition();
+                final String elapseTime = utils.milisecondsToString((int) current);
 
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    progressDurationTimer.setText(elapseTime);
-                                    seekBar.setProgress((int)current);
-                                }
-                            });
-
-                            Thread.sleep(1000);
-                        } catch(InterruptedException e){}
-                    }
-                }
+                // Update UI on the main thread
+                runOnUiThread(() -> {
+                    progressDurationTimer.setText(elapseTime);
+                    seekBar.setProgress((int) current);
+                });
             }
-        }).start();
+        }, 0, 1, TimeUnit.SECONDS);
+
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                while (musicPlayer != null){
+//                    if(musicPlayer.isPlaying()) {
+//                        try {
+//                            final double current = musicPlayer.getCurrentPosition();
+//                            final String elapseTime = milisecondsToString((int)current);
+//
+//                            runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    progressDurationTimer.setText(elapseTime);
+//                                    seekBar.setProgress((int)current);
+//                                }
+//                            });
+//
+//                            Thread.sleep(1000);
+//                        } catch(InterruptedException e){
+//                            e.getMessage();
+//                        }
+//                    }
+//                }
+//            }
+//        }).start();
 //        title.setText(musicPlayer.getTrackInfo().);
 
 
@@ -143,15 +166,15 @@ public class PlayingMusic extends AppCompatActivity {
                 }
             }
         });
-
-        mediaMetadataRetriever = new MediaMetadataRetriever();
+        //<editor-fold defaultstate="collapsed" desc="Retrieve metadata">
+        ffmmr = new FFmpegMediaMetadataRetriever();
         try {
 
-            mediaMetadataRetriever.setDataSource(getApplicationContext(), Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.unlive));
+            ffmmr.setDataSource(getApplicationContext(), Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.unlive));
 
-            String titleExtracted = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            String artistExtracted = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            byte[] artBytes = mediaMetadataRetriever.getEmbeddedPicture();
+            String titleExtracted = ffmmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_TITLE);
+            String artistExtracted = ffmmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
+            byte[] artBytes = ffmmr.getEmbeddedPicture();
             title.setText(titleExtracted != null ? titleExtracted : "Unknown Title");
             artist.setText(artistExtracted != null ? artistExtracted : "Unknown Title");
 
@@ -165,25 +188,27 @@ public class PlayingMusic extends AppCompatActivity {
                 albumArt.setImageResource(R.drawable.album_art_placeholder);
             }
         }catch (Exception e) {
-            e.printStackTrace();
+            e.getMessage();
             // Set a placeholder image in case of an error
             albumArt.setImageResource(R.drawable.album_art_placeholder);
         } finally {
-            try {
-                mediaMetadataRetriever.release(); // Always release the retriever when done
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            ffmmr.release();
         }
+        //</editor-fold>
     }
-    public String milisecondsToString(int time){
-        String elapsedTime = "";
-        int minutes = time / 1000 / 60;
-        int seconds = time / 1000 % 60;
-        elapsedTime = minutes + ":";
-        if(seconds < 10)
-            elapsedTime += "0";
-        elapsedTime += seconds;
-        return elapsedTime;
+//    public String milisecondsToString(int time){
+//        String elapsedTime = "";
+//        int minutes = time / 1000 / 60;
+//        int seconds = time / 1000 % 60;
+//        elapsedTime = minutes + ":";
+//        if(seconds < 10)
+//            elapsedTime += "0";
+//        elapsedTime += seconds;
+//        return elapsedTime;
+//    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown(); // Shut down the executor service
     }
 }
