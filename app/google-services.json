@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "823672511231",
+    "project_id": "musicstreamingapp-101c0",
+    "storage_bucket": "musicstreamingapp-101c0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:823672511231:android:d1aab058c24754a37d8aca",
+        "android_client_info": {
+          "package_name": "fu.se.demomusicstreamapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnP-fTLyR6XU_aYfp9BzDItGQeD4O19Sk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:823672511231:android:8d2005c6443139ce7d8aca",
+        "android_client_info": {
+          "package_name": "fu.se.spotifi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnP-fTLyR6XU_aYfp9BzDItGQeD4O19Sk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

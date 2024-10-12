@@ -2,6 +2,7 @@ package fu.se.spotifi.Entities;
 
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "songs")
@@ -11,7 +12,10 @@ public class Song {
     private int id;
 
     private String title, artist, url, duration;
-    private int thumbnail;
+    private byte thumbnail;
+
+    public Song() {
+    }
 
     public Song(String title, String artist, String url, String duration) {
         this.title = title;
@@ -20,6 +24,7 @@ public class Song {
         this.duration = duration;
     }
 
+    @Ignore
     public Song(String title, String artist, String url) {
         this.title = title;
         this.artist = artist;
@@ -46,7 +51,15 @@ public class Song {
         return url;
     }
 
-    public void setPath(String url) {
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setUrl(String url) {
         this.url = url;
     }
 
@@ -58,11 +71,11 @@ public class Song {
         this.duration = duration;
     }
 
-    public int getThumbnail() {
+    public byte getThumbnail() {
         return thumbnail;
     }
 
-    public void setThumbnail(int thumbnail) {
+    public void setThumbnail(byte thumbnail) {
         this.thumbnail = thumbnail;
     }
 }
