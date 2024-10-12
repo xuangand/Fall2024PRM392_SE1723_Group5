@@ -13,7 +13,7 @@ import fu.se.spotifi.Entities.Song;
 public abstract class SpotifiDatabase extends RoomDatabase {
     private static volatile SpotifiDatabase INSTANCE;
 
-    public static SpotifiDatabase getDatabase(final Context context) {
+    public static SpotifiDatabase getInstance(final Context context) {
         if (INSTANCE == null) {
             synchronized (SpotifiDatabase.class) {
                 if (INSTANCE == null) {

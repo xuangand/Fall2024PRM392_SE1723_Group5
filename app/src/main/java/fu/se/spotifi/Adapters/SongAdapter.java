@@ -13,20 +13,30 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import fu.se.spotifi.Const.Utils;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.R;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     Context context;
     ArrayList<Song> songs;
+    Utils utils = new Utils();
+    private final OnItemClickListener listener;
 
-    public SongAdapter(@NonNull Context context, @NonNull ArrayList<Song> songs) {
+    public interface OnItemClickListener {
+        void onItemClick(Song song);
+    }
+
+    public SongAdapter(@NonNull Context context, @NonNull ArrayList<Song> songs, OnItemClickListener listener) {
         //super(context, 0, objects);
         this.context = context;
         this.songs = songs;
+        this.listener = listener;
     }
 
     @NonNull
@@ -41,10 +51,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         //Assign data to the view
-        holder.songTitle.setText(songs.get(position).getTitle());
-        holder.songArtist.setText(songs.get(position).getArtist());
-        holder.duration.setText(songs.get(position).getDuration());
-        holder.songThumbnail.setImageResource(songs.get(position).getThumbnail());
+        Song song = songs.get(position);
+        holder.songTitle.setText(song.getTitle());
+        holder.songArtist.setText(song.getArtist());
+        holder.duration.setText(utils.milisecondsToString(song.getDuration()));
+        Glide.with(context).load(song.getThumbnail()).into(holder.songThumbnail);
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(song));
     }
 
     @Override
@@ -67,38 +79,4 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
             songThumbnail = itemView.findViewById(R.id.songThumbnail);
         }
     }
-
-//    @NonNull
-//    @Override
-//    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-//        ViewHolder viewHolder;
-//
-//        // Check if convertView is null (no reusable view available)
-//        if (convertView == null) {
-//            // Inflate a new view
-//            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_song, parent, false);
-//
-//            // Create a new ViewHolder and cache views
-//            viewHolder = new ViewHolder();
-//            viewHolder.songTitle = convertView.findViewById(R.id.songTitle);
-//            viewHolder.songArtist = convertView.findViewById(R.id.songArtist);
-//
-//            // Associate the ViewHolder with the convertView
-//            convertView.setTag(viewHolder);
-//        } else {
-//            // Reuse the existing view (convertView) and get the ViewHolder from the tag
-//            viewHolder = (ViewHolder) convertView.getTag();
-//        }
-//
-//        // Get the current song
-//        Song song = getItem(position);
-//
-//        // Populate the data into the views
-//        if (song != null) {
-//            viewHolder.songTitle.setText(song.getTitle());
-//            viewHolder.songArtist.setText(song.getArtist());
-//        }
-//
-//        return convertView;
-//    }
 }

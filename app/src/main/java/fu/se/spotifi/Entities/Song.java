@@ -11,17 +11,18 @@ public class Song {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    private String title, artist, url, duration;
-    private byte thumbnail;
+    private String title, artist, url, duration, thumbnail;
 
+    @Ignore
     public Song() {
     }
 
-    public Song(String title, String artist, String url, String duration) {
+    public Song(String title, String artist, String url, String duration, String thumbnail) {
         this.title = title;
         this.artist = artist;
         this.url = url;
         this.duration = duration;
+        this.thumbnail = thumbnail;
     }
 
     @Ignore
@@ -71,11 +72,11 @@ public class Song {
         this.duration = duration;
     }
 
-    public byte getThumbnail() {
+    public String getThumbnail() {
         return thumbnail;
     }
 
-    public void setThumbnail(byte thumbnail) {
+    public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
     }
 }
