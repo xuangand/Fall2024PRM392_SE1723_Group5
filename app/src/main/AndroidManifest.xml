@@ -63,5 +63,4 @@
             android:name=".Activities.SelectSongActivity"
             android:exported="false" />
     </application>
-
 </manifest>

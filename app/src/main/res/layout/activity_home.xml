@@ -262,5 +262,3 @@
         app:menu="@menu/menu_demo" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-
