@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Spotifi</string>
+    <string name="title_activity_library">Library</string>
 </resources>
