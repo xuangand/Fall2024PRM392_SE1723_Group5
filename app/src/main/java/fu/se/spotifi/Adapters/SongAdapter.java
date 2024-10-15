@@ -22,9 +22,9 @@ import fu.se.spotifi.Const.Utils;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.R;
 
-public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
+public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
     Context context;
-    ArrayList<Song> songs;
+    List<Song> songs;
     Utils utils = new Utils();
     private final OnItemClickListener listener;
 
@@ -32,31 +32,48 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         void onItemClick(Song song);
     }
 
-    public SongAdapter(@NonNull Context context, @NonNull ArrayList<Song> songs, OnItemClickListener listener) {
+    public SongAdapter(@NonNull Context context, @NonNull List<Song> songs, OnItemClickListener listener) {
         //super(context, 0, objects);
         this.context = context;
         this.songs = songs;
         this.listener = listener;
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        //Inflate layout, giving the look of the row
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.item_song,parent, false);
-        return new SongAdapter.ViewHolder(view);
+    public void updateSongList(List<Song> newSongs) {
+        this.songs = newSongs;
+        notifyDataSetChanged(); // Notify adapter about the data change
     }
 
+//    @NonNull
+//    @Override
+//    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+//        //Inflate layout, giving the look of the row
+//        LayoutInflater inflater = LayoutInflater.from(context);
+//        View view = inflater.inflate(R.layout.item_song,parent, false);
+//        return new SongAdapter.ViewHolder(view);
+//    }
+
+//    @Override
+//    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+//        //Assign data to the view
+//        Song song = songs.get(position);
+//        holder.songTitle.setText(song.getTitle());
+//        holder.songArtist.setText(song.getArtist());
+//        holder.duration.setText(utils.milisecondsToString(song.getDuration()));
+//        Glide.with(context).load(song.getThumbnail()).into(holder.songThumbnail);
+//        holder.itemView.setOnClickListener(v -> listener.onItemClick(song));
+//    }
+@NonNull
+@Override
+public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    View view = LayoutInflater.from(context).inflate(R.layout.item_song, parent, false);
+    return new SongViewHolder(view);
+}
+
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        //Assign data to the view
+    public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
         Song song = songs.get(position);
-        holder.songTitle.setText(song.getTitle());
-        holder.songArtist.setText(song.getArtist());
-        holder.duration.setText(utils.milisecondsToString(song.getDuration()));
-        Glide.with(context).load(song.getThumbnail()).into(holder.songThumbnail);
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(song));
+        holder.bind(song);
     }
 
     @Override
@@ -77,6 +94,32 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
             songArtist = itemView.findViewById(R.id.songArtist);
             duration = itemView.findViewById(R.id.songDuration);
             songThumbnail = itemView.findViewById(R.id.songThumbnail);
+        }
+    }
+    public class SongViewHolder extends RecyclerView.ViewHolder {
+        private ImageView songCoverImage;
+        private TextView songName, artistName;
+
+        public SongViewHolder(@NonNull View itemView) {
+            super(itemView);
+            songCoverImage = itemView.findViewById(R.id.songCoverImage);
+            songName = itemView.findViewById(R.id.songName);
+            artistName = itemView.findViewById(R.id.artistName);
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (listener != null && position != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(songs.get(position));
+                }
+            });
+        }
+
+        public void bind(Song song) {
+            // Assuming Song entity has 'name', 'artist', and 'image' fields
+            songName.setText(song.getTitle());
+            artistName.setText(song.getArtist());
+            // Load image (assuming it's a drawable resource)
+            songCoverImage.setImageResource(Integer.parseInt(song.getThumbnail())); // or use Glide/Picasso for image loading
         }
     }
 }
