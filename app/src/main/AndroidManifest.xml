@@ -15,8 +15,12 @@
         android:theme="@style/Theme.Spotifi">
         <activity
             android:name=".Activities.SongManagement"
-            android:exported="false" >
+            android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
 
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
         </activity>
         <activity
             android:name=".Activities.Home"
@@ -54,6 +58,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

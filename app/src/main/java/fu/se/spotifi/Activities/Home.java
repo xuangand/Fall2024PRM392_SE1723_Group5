@@ -5,9 +5,7 @@ import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,7 +25,8 @@ public class Home extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private SongAdapter adapter;
-    private List<Song> songList = new ArrayList<>();
+    ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private ArrayList<Song> songList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,33 +43,28 @@ public class Home extends AppCompatActivity {
             Log.e("Home", "AppBarLayout is null");
         }
 
+        SpotifiDatabase db = SpotifiDatabase.getInstance(this);
         recyclerView = findViewById(R.id.songRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        songList = new ArrayList<>();
 
-        // Initialize the adapter with an empty list
-        adapter = new SongAdapter(this, new ArrayList<>(), song -> {
-            // Handle song item click
-        });
-
-        // Attach the adapter to the RecyclerView
+        // Initialize the adapter with an empty song list
+        adapter = new SongAdapter(this, songList);
         recyclerView.setAdapter(adapter);
 
-        // Load songs from database asynchronously
-        loadSongsFromDatabase();
+        // Load songs in a background thread
+        executorService.execute(() -> {
+            List<Song> songs = db.songDAO().loadAllSongs(); // Replace with your database call
+            songList.addAll(songs);
+
+            // Update the adapter on the main thread
+            runOnUiThread(() -> adapter.notifyDataSetChanged());
+        });
     }
 
-    private void loadSongsFromDatabase() {
-        SpotifiDatabase db = SpotifiDatabase.getInstance(this);
-        new Thread(() -> {
-            songList = db.songDAO().loadAllSongs();
-
-            runOnUiThread(() -> {
-                adapter = new SongAdapter(this, songList, song -> {
-                    // Handle song item click
-                });
-                recyclerView.setAdapter(adapter);
-            });
-        }).start();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown(); // Shutdown the executor service when the activity is destroyed
     }
 }
-

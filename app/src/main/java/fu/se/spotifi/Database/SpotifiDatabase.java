@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import fu.se.spotifi.DAO.SongDAO;
 import fu.se.spotifi.Entities.Song;
 
-@Database(entities = {Song.class}, version = 1, exportSchema = false)
+@Database(entities = {Song.class}, version = 2, exportSchema = false)
 public abstract class SpotifiDatabase extends RoomDatabase {
     private static volatile SpotifiDatabase INSTANCE;
 
