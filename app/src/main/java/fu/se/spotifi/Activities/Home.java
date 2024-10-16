@@ -44,13 +44,13 @@ public class Home extends AppCompatActivity {
         }
 
         SpotifiDatabase db = SpotifiDatabase.getInstance(this);
-        recyclerView = findViewById(R.id.songRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        RecyclerView songRecyclerView = findViewById(R.id.songRecyclerView);
+        LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         songList = new ArrayList<>();
-
+        songRecyclerView.setLayoutManager(horizontalLayoutManager);
         // Initialize the adapter with an empty song list
-        adapter = new SongAdapter(this, songList);
-        recyclerView.setAdapter(adapter);
+        adapter = new SongAdapter(this, songList,null,true);
+        songRecyclerView.setAdapter(adapter);
 
         // Load songs in a background thread
         executorService.execute(() -> {

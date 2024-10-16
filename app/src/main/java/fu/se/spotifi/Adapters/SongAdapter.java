@@ -23,6 +23,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     ArrayList<Song> songs;
     Utils utils = new Utils();
     OnItemClickListener listener;
+    private boolean isHomeActivity;
 
     private static final int HOME_VIEW_TYPE = 0;
     private static final int NORMAL_VIEW_TYPE = 1;
@@ -31,15 +32,11 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void onItemClick(Song song);
     }
 
-    public SongAdapter(@NonNull Context context, @NonNull ArrayList<Song> songs, OnItemClickListener listener) {
+    public SongAdapter(@NonNull Context context, @NonNull ArrayList<Song> songs, OnItemClickListener listener, boolean isHomeActivity) {
         this.context = context;
         this.songs = songs;
         this.listener = listener;
-    }
-
-    public SongAdapter(@NonNull Context context, @NonNull ArrayList<Song> songs) {
-        this.context = context;
-        this.songs = songs;
+        this.isHomeActivity = isHomeActivity;
     }
 
     @NonNull
@@ -59,8 +56,8 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        // Determine if the current item should be displayed with the home layout
-        return isHomeLayout(position) ? HOME_VIEW_TYPE : NORMAL_VIEW_TYPE;
+        // Use the isHomeActivity flag to determine which layout to use
+        return isHomeActivity ? HOME_VIEW_TYPE : NORMAL_VIEW_TYPE;
     }
 
     @Override
@@ -99,6 +96,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    // ViewHolder for home layout
     public static class HomeViewHolder extends RecyclerView.ViewHolder {
         TextView songTitle, songArtist;
         ImageView songThumbnail;
@@ -111,9 +109,5 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    // Method to determine if the item at the given position should use the home layout
-    private boolean isHomeLayout(int position) {
-        // Implement your logic here; for example:
-        return position == 0; // Assume the first item is a home layout
-    }
+
 }

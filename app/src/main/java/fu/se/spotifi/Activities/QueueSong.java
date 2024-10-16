@@ -51,7 +51,7 @@ public class QueueSong extends AppCompatActivity {
             songArrayList.addAll(songs);
         });
 
-        SongAdapter songAdapter = new SongAdapter(this, songArrayList, this::playSong);
+        SongAdapter songAdapter = new SongAdapter(this, songArrayList, this::playSong,false);
         songs.setAdapter(songAdapter);
         songs.setLayoutManager(new LinearLayoutManager(this));
     }
