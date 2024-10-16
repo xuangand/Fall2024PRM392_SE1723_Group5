@@ -1,5 +1,6 @@
 package fu.se.spotifi.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -19,9 +20,13 @@ import java.util.concurrent.Executors;
 import fu.se.spotifi.Adapters.SongAdapter;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Song;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import fu.se.spotifi.R;
 
-public class Home extends AppCompatActivity {
+public class Home extends BaseActivity {
+
+    private BottomNavigationView bottomNavigationView;
 
     private RecyclerView recyclerView;
     private SongAdapter adapter;
@@ -60,6 +65,8 @@ public class Home extends AppCompatActivity {
             // Update the adapter on the main thread
             runOnUiThread(() -> adapter.notifyDataSetChanged());
         });
+
+        setupBottomNavigation();
     }
 
     @Override

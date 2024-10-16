@@ -5,8 +5,10 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "songs")
-public class Song {
+public class Song implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -32,6 +34,10 @@ public class Song {
         this.url = url;
     }
 
+    public int getId() { return id; }
+
+    public void setId(int id) { this.id = id; }
+
     public String getTitle() {
         return title;
     }
@@ -50,14 +56,6 @@ public class Song {
 
     public String getUrl() {
         return url;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public void setUrl(String url) {
