@@ -3,6 +3,7 @@ package fu.se.spotifi.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import java.util.concurrent.Executors;
 
 import fu.se.spotifi.Adapters.SongAdapter;
 import fu.se.spotifi.Database.SpotifiDatabase;
+import fu.se.spotifi.Entities.Queue;
 import fu.se.spotifi.Entities.Song;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -54,7 +56,7 @@ public class Home extends BaseActivity {
         songList = new ArrayList<>();
         songRecyclerView.setLayoutManager(horizontalLayoutManager);
         // Initialize the adapter with an empty song list
-        adapter = new SongAdapter(this, songList,null,true);
+        adapter = new SongAdapter(this, songList,this::onSongClick,true);
         songRecyclerView.setAdapter(adapter);
 
         // Load songs in a background thread
@@ -69,9 +71,36 @@ public class Home extends BaseActivity {
         setupBottomNavigation();
     }
 
+    // Correctly implementing the onItemClick method
+
+    private void onSongClick(Song song) {
+        // Add the clicked song to the queue
+        addToQueue(song); // Assuming addQueue is the method to add to the queue
+    }
+    private void addToQueue(Song song) {
+        // Create a Queue object to hold the song details
+        Queue queue = new Queue();
+        queue.setSongId(song.getId());
+        queue.setSongTitle(song.getTitle());
+        queue.setSongArtist(song.getArtist());
+        queue.setSongThumbnail(song.getThumbnail());
+
+        // Use executor service to run the database operation in a background thread
+        executorService.execute(() -> {
+            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+            db.queueDAO().addQueue(queue); // Add the queue to the database
+
+            // Log and show a Toast on the main thread
+            runOnUiThread(() -> {
+                Log.d("Home", "Added to queue: " + song.getTitle());
+                Toast.makeText(this, song.getTitle() + " added to queue", Toast.LENGTH_SHORT).show();
+            });
+        });
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         executorService.shutdown(); // Shutdown the executor service when the activity is destroyed
     }
+
 }

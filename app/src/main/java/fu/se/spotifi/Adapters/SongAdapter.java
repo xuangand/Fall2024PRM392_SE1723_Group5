@@ -1,6 +1,7 @@
 package fu.se.spotifi.Adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,12 +70,24 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             homeHolder.songTitle.setText(song.getTitle());
             homeHolder.songArtist.setText(song.getArtist());
             Glide.with(context).load(song.getThumbnail()).into(homeHolder.songThumbnail);
+            homeHolder.itemView.setOnClickListener(v -> {
+                addToQueue(song);
+            });
+            // Set click listener for home layout
+            homeHolder.itemView.setOnClickListener(v -> {
+                // Call your method to add the song to the queue
+                addToQueue(song);
+            });
+
         } else if (holder instanceof ViewHolder) {
             ViewHolder viewHolder = (ViewHolder) holder;
             viewHolder.songTitle.setText(song.getTitle());
             viewHolder.songArtist.setText(song.getArtist());
             viewHolder.duration.setText(utils.milisecondsToString(song.getDuration()));
             Glide.with(context).load(song.getThumbnail()).into(viewHolder.songThumbnail);
+            viewHolder.itemView.setOnClickListener(v -> {
+                addToQueue(song);
+            });
         }
     }
 
@@ -108,6 +121,14 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             songThumbnail = itemView.findViewById(R.id.songThumbnail); // Ensure this matches your item_home_song layout
         }
     }
-
+    public interface OnSongClickListener {
+        void onSongClick(Song song);
+    }
+    private void addToQueue(Song song) {
+        // Notify the listener if it's set
+        if (listener != null) {
+            listener.onItemClick(song); // Call the listener's method
+        }
+    }
 
 }
