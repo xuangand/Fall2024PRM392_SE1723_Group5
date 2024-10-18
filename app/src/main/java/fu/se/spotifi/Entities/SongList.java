@@ -1,7 +1,7 @@
 package fu.se.spotifi.Entities;
 
-
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "songlist")
@@ -14,6 +14,7 @@ public class SongList {
     private int songId;
     private int order;
 
+    // Constructor used by Room
     public SongList(int id, int playlistId, int songId, int order) {
         Id = id;
         this.playlistId = playlistId;
@@ -21,14 +22,18 @@ public class SongList {
         this.order = order;
     }
 
+    // Default constructor used by Room
     public SongList() {
     }
 
+    // Constructor that you might use elsewhere, but Room should ignore
+    @Ignore
     public SongList(int playlistId, int songId) {
         this.playlistId = playlistId;
         this.songId = songId;
     }
 
+    // Getters and Setters
     public int getId() {
         return Id;
     }
