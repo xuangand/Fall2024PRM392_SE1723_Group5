@@ -34,3 +34,5 @@ public interface QueueDAO {
     @Query("DELETE FROM queue")
     void clearQueue();
 }
+
+

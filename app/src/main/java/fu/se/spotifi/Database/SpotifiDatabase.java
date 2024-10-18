@@ -37,3 +37,5 @@ public abstract QueueDAO queueDAO();
     public abstract PlaylistDAO playlistDAO();
     public abstract SongListDAO songListDAO();
 }
+
+
