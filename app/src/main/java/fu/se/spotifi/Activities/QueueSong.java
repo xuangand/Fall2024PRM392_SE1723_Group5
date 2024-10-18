@@ -48,7 +48,7 @@ public class QueueSong extends AppCompatActivity {
         });
 
 
-        RecyclerView queueRecyclerView = findViewById(R.id.queueRecyclerView);
+        RecyclerView queueRecyclerView = findViewById(R.id.songQueueRecyclerView);
         queueRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Attach the adapter immediately with an empty list

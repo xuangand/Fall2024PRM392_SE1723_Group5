@@ -25,7 +25,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
     public QueueAdapter(Context context, List<Queue> queueList) {
         this.context = context;
-        this.queueList = new ArrayList<>();  // Initialize with an empty list
+        this.queueList = queueList;
     }
 
     public void setQueueList(List<Queue> queueList) {
