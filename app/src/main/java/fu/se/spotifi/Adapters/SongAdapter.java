@@ -1,6 +1,7 @@
 package fu.se.spotifi.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+import fu.se.spotifi.Activities.PlayingMusic;
 import fu.se.spotifi.Const.Utils;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Song;
@@ -90,6 +92,18 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 // Call method to clear the queue and add the new song
 
                 addNewQueue(song);
+
+                Intent intent = new Intent(context, PlayingMusic.class);
+
+                // Pass the song details to the new activity, if needed
+                intent.putExtra("songId", song.getId());
+                intent.putExtra("songTitle", song.getTitle());
+                intent.putExtra("songArtist", song.getArtist());
+                intent.putExtra("songUrl", song.getUrl()); // Assuming getUrl() returns the song's URL
+                intent.putExtra("songThumbnail", song.getThumbnail());
+
+                // Start PlayingMusicActivity
+                context.startActivity(intent);
             });
 
 
@@ -152,6 +166,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             songTitle = itemView.findViewById(R.id.songTitle); // Ensure this matches your item_home_song layout
             songArtist = itemView.findViewById(R.id.songArtist); // Ensure this matches your item_home_song layout
             songThumbnail = itemView.findViewById(R.id.songThumbnail); // Ensure this matches your item_home_song layout
+
         }
     }
     public interface OnSongClickListener {

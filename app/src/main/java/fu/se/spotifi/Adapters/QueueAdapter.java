@@ -55,7 +55,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView songTitle, songArtist,duration,queuePosition;
+        TextView songTitle, songArtist,duration,queuePosition,songUrl;
         ImageView songThumbnail;
 
         public ViewHolder(@NonNull View itemView) {

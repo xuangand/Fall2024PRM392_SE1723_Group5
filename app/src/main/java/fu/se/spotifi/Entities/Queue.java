@@ -12,8 +12,10 @@ public class Queue {
     private String songTitle;
     private String songArtist;
     private String songUrl;
-    private String songDuration;
     private String songThumbnail;
+    private String status;
+    private int order;
+
     // Getter and Setter for queueId
     public int getQueueId() {
         return queueId;
@@ -59,15 +61,6 @@ public class Queue {
         this.songUrl = songUrl;
     }
 
-    // Getter and Setter for songDuration
-    public String getSongDuration() {
-        return songDuration;
-    }
-
-    public void setSongDuration(String songDuration) {
-        this.songDuration = songDuration;
-    }
-
     // Getter and Setter for songThumbnail
     public String getSongThumbnail() {
         return songThumbnail;
@@ -77,5 +70,21 @@ public class Queue {
         this.songThumbnail = songThumbnail;
     }
 
-}
+    // Getter and Setter for status
+    public String getStatus() {
+        return status;
+    }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    // Getter and Setter for order
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+}

@@ -15,7 +15,7 @@ import fu.se.spotifi.Entities.Queue;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.Entities.SongList;
 
-@Database(entities = {Song.class, Playlist.class, SongList.class, Queue.class}, version = 3, exportSchema = false)
+@Database(entities = {Song.class, Playlist.class, SongList.class, Queue.class}, version = 4, exportSchema = false)
 public abstract class SpotifiDatabase extends RoomDatabase {
     private static volatile SpotifiDatabase INSTANCE;
 

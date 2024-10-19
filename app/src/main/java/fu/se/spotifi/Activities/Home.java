@@ -83,16 +83,23 @@ public class Home extends BaseActivity {
         addNewQueue(song);
     }
     private void addToQueue(Song song) {
-        // Create a Queue object to hold the song details
+        executorService.execute(() -> {
+
+            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+            List<Queue> currentQueue = db.queueDAO().loadAllQueues();
+            int queueOrder = currentQueue.size() + 1;
         Queue queue = new Queue();
+        queue.setQueueId(currentQueue.size() + 1);
+        queue.setOrder(queueOrder);
+        queue.setStatus("Waiting");
         queue.setSongId(song.getId());
         queue.setSongTitle(song.getTitle());
+        queue.setSongUrl(song.getUrl());
         queue.setSongArtist(song.getArtist());
         queue.setSongThumbnail(song.getThumbnail());
 
         // Use executor service to run the database operation in a background thread
-        executorService.execute(() -> {
-            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+
             db.queueDAO().addQueue(queue); // Add the queue to the database
 
             // Log and show a Toast on the main thread
@@ -111,7 +118,11 @@ public class Home extends BaseActivity {
 
             // Create a new Queue object
             Queue newQueueEntry = new Queue();
+            newQueueEntry.setQueueId(1);
+            newQueueEntry.setOrder(1);
+            newQueueEntry.setStatus("Playing");
             newQueueEntry.setSongId(song.getId());
+            newQueueEntry.setSongUrl(song.getUrl());
             newQueueEntry.setSongTitle(song.getTitle());
             newQueueEntry.setSongArtist(song.getArtist());
             newQueueEntry.setSongThumbnail(song.getThumbnail());
