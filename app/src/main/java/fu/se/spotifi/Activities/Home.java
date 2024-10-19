@@ -93,10 +93,10 @@ public class Home extends BaseActivity {
         queue.setOrder(queueOrder);
         queue.setStatus("Waiting");
         queue.setSongId(song.getId());
-//        queue.setSongTitle(song.getTitle());
-//        queue.setSongUrl(song.getUrl());
-//        queue.setSongArtist(song.getArtist());
-//        queue.setSongThumbnail(song.getThumbnail());
+        queue.setSongTitle(song.getTitle());
+        queue.setSongUrl(song.getUrl());
+        queue.setSongArtist(song.getArtist());
+        queue.setSongThumbnail(song.getThumbnail());
 
         // Use executor service to run the database operation in a background thread
 
@@ -122,10 +122,10 @@ public class Home extends BaseActivity {
             newQueueEntry.setOrder(1);
             newQueueEntry.setStatus("Playing");
             newQueueEntry.setSongId(song.getId());
-//            newQueueEntry.setSongUrl(song.getUrl());
-//            newQueueEntry.setSongTitle(song.getTitle());
-//            newQueueEntry.setSongArtist(song.getArtist());
-//            newQueueEntry.setSongThumbnail(song.getThumbnail());
+            newQueueEntry.setSongUrl(song.getUrl());
+            newQueueEntry.setSongTitle(song.getTitle());
+            newQueueEntry.setSongArtist(song.getArtist());
+            newQueueEntry.setSongThumbnail(song.getThumbnail());
 
             // Add the song to the queue
             db.queueDAO().addQueue(newQueueEntry);

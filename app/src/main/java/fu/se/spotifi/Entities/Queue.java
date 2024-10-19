@@ -9,10 +9,10 @@ public class Queue {
     @PrimaryKey(autoGenerate = true)
     private int queueId;
     private int songId;
-    //private String songTitle;
-    //private String songArtist;
-    //private String songUrl;
-    //private String songThumbnail;
+    private String songTitle;
+    private String songArtist;
+    private String songUrl;
+    private String songThumbnail;
     private String status;
     private int order;
 
@@ -34,41 +34,41 @@ public class Queue {
         this.songId = songId;
     }
 
-//    // Getter and Setter for songTitle
-//    public String getSongTitle() {
-//        return songTitle;
-//    }
-//
-//    public void setSongTitle(String songTitle) {
-//        this.songTitle = songTitle;
-//    }
-//
-//    // Getter and Setter for songArtist
-//    public String getSongArtist() {
-//        return songArtist;
-//    }
-//
-//    public void setSongArtist(String songArtist) {
-//        this.songArtist = songArtist;
-//    }
-//
-//    // Getter and Setter for songUrl
-//    public String getSongUrl() {
-//        return songUrl;
-//    }
-//
-//    public void setSongUrl(String songUrl) {
-//        this.songUrl = songUrl;
-//    }
-//
-//    // Getter and Setter for songThumbnail
-//    public String getSongThumbnail() {
-//        return songThumbnail;
-//    }
-//
-//    public void setSongThumbnail(String songThumbnail) {
-//        this.songThumbnail = songThumbnail;
-//    }
+    // Getter and Setter for songTitle
+    public String getSongTitle() {
+        return songTitle;
+    }
+
+    public void setSongTitle(String songTitle) {
+        this.songTitle = songTitle;
+    }
+
+    // Getter and Setter for songArtist
+    public String getSongArtist() {
+        return songArtist;
+    }
+
+    public void setSongArtist(String songArtist) {
+        this.songArtist = songArtist;
+    }
+
+    // Getter and Setter for songUrl
+    public String getSongUrl() {
+        return songUrl;
+    }
+
+    public void setSongUrl(String songUrl) {
+        this.songUrl = songUrl;
+    }
+
+    // Getter and Setter for songThumbnail
+    public String getSongThumbnail() {
+        return songThumbnail;
+    }
+
+    public void setSongThumbnail(String songThumbnail) {
+        this.songThumbnail = songThumbnail;
+    }
 
     // Getter and Setter for status
     public String getStatus() {
