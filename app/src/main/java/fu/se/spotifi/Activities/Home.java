@@ -56,7 +56,7 @@ public class Home extends BaseActivity {
         songList = new ArrayList<>();
         songRecyclerView.setLayoutManager(horizontalLayoutManager);
         // Initialize the adapter with an empty song list
-        adapter = new SongAdapter(this, songList,this::onSongClick,true);
+        adapter = new SongAdapter(this, songList,this::onSongClick,this::onSongLongClick,true);
         songRecyclerView.setAdapter(adapter);
 
         // Load songs in a background thread
@@ -77,6 +77,11 @@ public class Home extends BaseActivity {
         // Add the clicked song to the queue
         addToQueue(song); // Assuming addQueue is the method to add to the queue
     }
+
+
+    private void onSongLongClick(Song song){
+        addNewQueue(song);
+    }
     private void addToQueue(Song song) {
         // Create a Queue object to hold the song details
         Queue queue = new Queue();
@@ -94,6 +99,29 @@ public class Home extends BaseActivity {
             runOnUiThread(() -> {
                 Log.d("Home", "Added to queue: " + song.getTitle());
                 Toast.makeText(this, song.getTitle() + " added to queue", Toast.LENGTH_SHORT).show();
+            });
+        });
+    }
+
+    private void addNewQueue(Song song) {
+        executorService.execute(() -> {
+            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+            // Clear the queue
+            db.queueDAO().clearQueue(); // Assuming you have a method in your DAO to clear the queue
+
+            // Create a new Queue object
+            Queue newQueueEntry = new Queue();
+            newQueueEntry.setSongId(song.getId());
+            newQueueEntry.setSongTitle(song.getTitle());
+            newQueueEntry.setSongArtist(song.getArtist());
+            newQueueEntry.setSongThumbnail(song.getThumbnail());
+
+            // Add the song to the queue
+            db.queueDAO().addQueue(newQueueEntry);
+
+            // Notify on UI thread
+            runOnUiThread(() -> {
+                Toast.makeText(this, "New queue started with: " + song.getTitle(), Toast.LENGTH_SHORT).show();
             });
         });
     }

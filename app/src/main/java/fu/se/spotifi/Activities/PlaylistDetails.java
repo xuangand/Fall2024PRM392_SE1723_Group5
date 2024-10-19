@@ -65,7 +65,8 @@ public class PlaylistDetails extends BaseActivity {
             List<Song> songList = db.songListDAO().loadSongsByPlaylistId(playlistId);
             runOnUiThread(() -> {
                 songAdapter = new SongAdapter(this, (ArrayList<Song>) songList, song -> {
-                 },false);
+                 },song -> {
+                },false);
                 songRecyclerView.setAdapter(songAdapter);
             });
         });

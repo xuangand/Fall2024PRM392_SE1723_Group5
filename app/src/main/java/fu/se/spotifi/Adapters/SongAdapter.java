@@ -6,7 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,6 +18,7 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 
 import fu.se.spotifi.Const.Utils;
+import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.R;
 
@@ -25,18 +28,25 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     Utils utils = new Utils();
     OnItemClickListener listener;
     private boolean isHomeActivity;
+    OnItemLongClickListener longListener;
 
     private static final int HOME_VIEW_TYPE = 0;
     private static final int NORMAL_VIEW_TYPE = 1;
 
     public interface OnItemClickListener {
         void onItemClick(Song song);
+
+    }
+    public interface OnItemLongClickListener {
+        void onItemLongClick(Song song);
+
     }
 
-    public SongAdapter(@NonNull Context context, @NonNull ArrayList<Song> songs, OnItemClickListener listener, boolean isHomeActivity) {
+    public SongAdapter(@NonNull Context context, @NonNull ArrayList<Song> songs, OnItemClickListener listener,OnItemLongClickListener longListener, boolean isHomeActivity) {
         this.context = context;
         this.songs = songs;
         this.listener = listener;
+        this.longListener=longListener;
         this.isHomeActivity = isHomeActivity;
     }
 
@@ -70,14 +80,18 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             homeHolder.songTitle.setText(song.getTitle());
             homeHolder.songArtist.setText(song.getArtist());
             Glide.with(context).load(song.getThumbnail()).into(homeHolder.songThumbnail);
-            homeHolder.itemView.setOnClickListener(v -> {
-                addToQueue(song);
-            });
+
             // Set click listener for home layout
-            homeHolder.itemView.setOnClickListener(v -> {
-                // Call your method to add the song to the queue
-                addToQueue(song);
+            homeHolder.itemView.setOnLongClickListener(v -> {
+                showPopupMenu(v, song);
+                return true; // Return true to indicate the long-press was handled
             });
+            homeHolder.itemView.setOnClickListener(v -> {
+                // Call method to clear the queue and add the new song
+
+                addNewQueue(song);
+            });
+
 
         } else if (holder instanceof ViewHolder) {
             ViewHolder viewHolder = (ViewHolder) holder;
@@ -90,6 +104,25 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         }
     }
+    private void showPopupMenu(View view, Song song) {
+        PopupMenu popupMenu = new PopupMenu(context, view);
+        popupMenu.inflate(R.menu.popup_menu); // Inflate your popup menu layout
+
+        // Handle menu item clicks
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.menu_add_to_queue) {
+                addToQueue(song); // Your method to add the song to the queue
+                Toast.makeText(context, song.getTitle() + " added to queue", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            return false;
+        });
+
+        popupMenu.show(); // Show the popup menu
+    }
+
+
+
 
     @Override
     public int getItemCount() {
@@ -130,5 +163,12 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             listener.onItemClick(song); // Call the listener's method
         }
     }
+    private void addNewQueue(Song song) {
+        // Notify the listener if it's set
+        if (longListener != null) {
+            longListener.onItemLongClick(song); // Call the listener's method
+        }
+    }
+
 
 }

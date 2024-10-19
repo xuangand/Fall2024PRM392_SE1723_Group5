@@ -41,7 +41,7 @@ public class SelectSongActivity extends BaseActivity {
                     resultIntent.putExtra("selectedSong", song);
                     setResult(RESULT_OK, resultIntent);
                     finish();
-                },false);
+                },null,false);
                 songRecyclerView.setAdapter(songAdapter);
             });
         });
