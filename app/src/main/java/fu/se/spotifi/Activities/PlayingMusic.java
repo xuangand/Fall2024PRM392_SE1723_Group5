@@ -1,12 +1,8 @@
-// PlayingMusic.java
 package fu.se.spotifi.Activities;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -26,6 +22,7 @@ import com.bumptech.glide.Glide;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -34,12 +31,18 @@ import fu.se.spotifi.Const.Utils;
 import fu.se.spotifi.DAO.SongDAO;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Playlist;
+import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.Entities.SongList;
 import fu.se.spotifi.R;
 
 public class PlayingMusic extends AppCompatActivity {
-    private ScheduledExecutorService executorService;
-    private MediaPlayer musicPlayer;
+    private ScheduledExecutorService scheduledExecutorService;
+    private ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private MediaPlayer musicPlayer = new MediaPlayer();
+    //<editor-fold defaultstate="collapsed" desc="Get selected song">
+    Intent getSong = getIntent();
+    int selectedSong = getSong.getIntExtra("songId", -1);
+    //</editor-fold>
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +54,7 @@ public class PlayingMusic extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+        //<editor-fold defaultstate="collapsed" desc="Initialization">
         TextView lyrics = findViewById(R.id.lyrics);
         TextView details = findViewById(R.id.details);
         TextView upNext = findViewById(R.id.upNext);
@@ -67,43 +70,45 @@ public class PlayingMusic extends AppCompatActivity {
         Button saveButton = findViewById(R.id.SaveSongToPlaylist);
         ImageView albumArt = findViewById(R.id.albumArt);
         Utils utils = new Utils();
+        //</editor-fold>
 
-        SpotifiDatabase db = SpotifiDatabase.getInstance(this);
-        SongDAO songDAO;
+        //<editor-fold defaultstate="collapsed" desc="Fill song data to layout">
+        executorService.execute(() -> {
+            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+            SongDAO songDAO = db.songDAO();
+            Song selectedSongData = songDAO.getSongById(selectedSong);
+            if (selectedSongData != null) {
+                title.setText(selectedSongData.getTitle());
+                artist.setText(selectedSongData.getArtist());
+                runOnUiThread(() -> Glide.with(this).load(selectedSongData.getThumbnail()).into(albumArt));
+            }
 
-        // Retrieve song details from the intent
-        Intent intent = getIntent();
-        String songUrl = intent.getStringExtra("songUrl");
-        String songTitle = intent.getStringExtra("songTitle");
-        String songArtist = intent.getStringExtra("songArtist");
-        String songThumbnail = intent.getStringExtra("songThumbnail");
+            try {
+                // Set the data source from URL and prepare the player asynchronously
+                musicPlayer.setDataSource(selectedSongData.getUrl());
+                musicPlayer.prepareAsync();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            musicPlayer.setOnPreparedListener(mp -> {
+                // Set the duration once the song is ready
+                String duration = utils.milisecondsToString(musicPlayer.getDuration());
+                endDurationTimer.setText(duration);
 
-        // Set song details to the UI
-        title.setText(songTitle);
-        artist.setText(songArtist);
-        if (songThumbnail != null && !songThumbnail.isEmpty()) {
-            Glide.with(this)
-                    .load(songThumbnail)
-                    .placeholder(R.drawable.album_art_placeholder)
-                    .into(albumArt);
-        } else {
-            albumArt.setImageResource(R.drawable.album_art_placeholder);
-        }
+                // Set up the SeekBar max value
+                seekBar.setMax(musicPlayer.getDuration());
 
-        // Initialize and start the media player
-        musicPlayer = new MediaPlayer();
-        try {
-            musicPlayer.setDataSource(songUrl);
-            musicPlayer.prepare();
-            musicPlayer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                // Play the song once prepared
+                musicPlayer.start();
+                playPauseButton.setImageResource(R.drawable.ic_pause);
+            });
 
-        String duration = utils.milisecondsToString(musicPlayer.getDuration());
-        endDurationTimer.setText(duration);
+            musicPlayer.setLooping(true);
+            musicPlayer.seekTo(0);
+        });
+        //</editor-fold>
 
-        seekBar.setMax(musicPlayer.getDuration());
+        //<editor-fold defaultstate="collapsed" desc="Set up seekBar">
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean isFromUser) {
@@ -114,14 +119,18 @@ public class PlayingMusic extends AppCompatActivity {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
+        //</editor-fold>
 
-        executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleWithFixedDelay(() -> {
+        //<editor-fold defaultstate="collapsed" desc="Update UI while song is playing">
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        scheduledExecutorService.scheduleWithFixedDelay(() -> {
             if (musicPlayer != null && musicPlayer.isPlaying()) {
                 final double current = musicPlayer.getCurrentPosition();
                 final String elapseTime = utils.milisecondsToString((int) current);
@@ -133,7 +142,7 @@ public class PlayingMusic extends AppCompatActivity {
                 });
             }
         }, 0, 1, TimeUnit.SECONDS);
-
+        //</editor-fold>
         lyrics.setOnClickListener(view -> {
             Intent iLyrics = new Intent(PlayingMusic.this, Lyrics.class);
             startActivity(iLyrics);
@@ -143,10 +152,20 @@ public class PlayingMusic extends AppCompatActivity {
             startActivity(iDetails);
         });
         upNext.setOnClickListener(view -> {
-            Intent itent = new Intent(PlayingMusic.this, QueueSong.class);
-            startActivity(itent);
+            Intent intent = new Intent(PlayingMusic.this, QueueSong.class);
+            startActivity(intent);
         });
 
+//        playPauseButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (musicPlayer.isPlaying()) {
+//                    musicPlayer.pause();
+//                    playPauseButton.setImageResource(R.drawable.ic_play);
+//                } else {
+//                    musicPlayer.start();
+//                    playPauseButton.setImageResource(R.drawable.ic_pause);
+//                }
         playPauseButton.setOnClickListener(view -> {
             if (musicPlayer.isPlaying()) {
                 musicPlayer.pause();
@@ -178,7 +197,7 @@ public class PlayingMusic extends AppCompatActivity {
 
     private void getPlaylistsFromDatabase(Callback<List<String>> callback) {
         executorService.execute(() -> {
-        SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
             List<Playlist> playlists = db.playlistDAO().loadAllPlaylist();
             List<String> playlistNames = new ArrayList<>();
             for (Playlist playlist : playlists) {
@@ -186,6 +205,35 @@ public class PlayingMusic extends AppCompatActivity {
             }
             runOnUiThread(() -> callback.onResult(playlistNames));
         });
+        //<editor-fold defaultstate="collapsed" desc="Retrieve metadata">
+//        ffmmr = new FFmpegMediaMetadataRetriever();
+//        try {
+//
+//            ffmmr.setDataSource(getApplicationContext(), Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.unlive));
+//
+//            String titleExtracted = ffmmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_TITLE);
+//            String artistExtracted = ffmmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
+//            byte[] artBytes = ffmmr.getEmbeddedPicture();
+//            title.setText(titleExtracted != null ? titleExtracted : "Unknown Title");
+//            artist.setText(artistExtracted != null ? artistExtracted : "Unknown Title");
+//
+//            if (artBytes != null) {
+//                // Convert byte array to Bitmap
+//                Bitmap bitmap = BitmapFactory.decodeByteArray(artBytes, 0, artBytes.length);
+//                // Set the Bitmap to the ImageView
+//                albumArt.setImageBitmap(bitmap);
+//            } else {
+//                // Set a placeholder image if no album art is found
+//                albumArt.setImageResource(R.drawable.album_art_placeholder);
+//            }
+//        } catch (Exception e) {
+//            e.getMessage();
+//            // Set a placeholder image in case of an error
+//            albumArt.setImageResource(R.drawable.album_art_placeholder);
+//        } finally {
+//            ffmmr.release();
+//        }
+        //</editor-fold>
     }
 
     interface Callback<T> {
@@ -193,15 +241,11 @@ public class PlayingMusic extends AppCompatActivity {
     }
 
     private void saveSongToPlaylist(String playlistName) {
-        // Retrieve song details from the intent
-        Intent intent = getIntent();
-        int songId = intent.getIntExtra("songId", -1);
-
         executorService.execute(() -> {
             SpotifiDatabase db = SpotifiDatabase.getInstance(this);
             Playlist playlist = db.playlistDAO().getPlaylistByName(playlistName);
             if (playlist != null) {
-                SongList songList = new SongList(playlist.getId(), songId);
+                SongList songList = new SongList(playlist.getId(), selectedSong);
                 db.playlistDAO().addSongToPlaylist(songList);
                 runOnUiThread(() -> Toast.makeText(this, "Song added to " + playlistName, Toast.LENGTH_SHORT).show());
             } else {
@@ -213,11 +257,13 @@ public class PlayingMusic extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        executorService.shutdown(); // Shut down the executor service
         if (musicPlayer != null) {
-            musicPlayer.release();
+            musicPlayer.release(); // Release MediaPlayer resources
             musicPlayer = null;
         }
-        executorService.shutdown(); // Shut down the executor service
+        if (scheduledExecutorService != null) {
+            scheduledExecutorService.shutdown(); // Shut down the scheduled executor service
+        }
     }
 }
-

@@ -23,4 +23,6 @@ public interface SongDAO {
 
     @Query("SELECT * FROM songs")
     List<Song> loadAllSongs();
+    @Query("SELECT * FROM songs WHERE id = :songId")
+    Song getSongById(int songId);
 }
