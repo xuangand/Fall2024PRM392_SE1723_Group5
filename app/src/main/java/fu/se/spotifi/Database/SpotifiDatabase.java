@@ -7,13 +7,15 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import fu.se.spotifi.DAO.PlaylistDAO;
+import fu.se.spotifi.DAO.QueueDAO;
 import fu.se.spotifi.DAO.SongDAO;
 import fu.se.spotifi.DAO.SongListDAO;
 import fu.se.spotifi.Entities.Playlist;
+import fu.se.spotifi.Entities.Queue;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.Entities.SongList;
 
-@Database(entities = {Song.class, Playlist.class, SongList.class}, version = 1, exportSchema = false)
+@Database(entities = {Song.class, Playlist.class, SongList.class, Queue.class}, version = 4, exportSchema = false)
 public abstract class SpotifiDatabase extends RoomDatabase {
     private static volatile SpotifiDatabase INSTANCE;
 
@@ -30,8 +32,10 @@ public abstract class SpotifiDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
-
+public abstract QueueDAO queueDAO();
     public abstract SongDAO songDAO();
     public abstract PlaylistDAO playlistDAO();
     public abstract SongListDAO songListDAO();
 }
+
+

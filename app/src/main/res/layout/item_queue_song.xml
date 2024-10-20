@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:padding="8dp">
+
+    <!-- Song Thumbnail -->
+    <ImageView
+        android:id="@+id/songThumbnail"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/album_cover_image"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Song Title -->
+    <TextView
+        android:id="@+id/songTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="Song Title"
+        android:textColor="#ffffff"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/songThumbnail"
+        app:layout_constraintTop_toTopOf="@id/songThumbnail"
+        android:layout_marginStart="10dp"/>
+
+    <!-- Artist Name -->
+    <TextView
+        android:id="@+id/songArtist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:text="Artist Name"
+        android:textColor="#b8b8b8"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@id/songTitle"
+        app:layout_constraintTop_toBottomOf="@id/songTitle" />
+
+    <!-- Queue Position -->
+    <TextView
+        android:id="@+id/queuePosition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1"
+    android:textColor="#b8b8b8"
+    android:textSize="14sp"
+    app:layout_constraintEnd_toStartOf="@id/songThumbnail"
+    app:layout_constraintTop_toTopOf="parent"
+    android:layout_marginEnd="10dp"/>
+
+    <!-- Drag Handle -->
+    <ImageView
+        android:id="@+id/dragHandle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_drag_handle"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

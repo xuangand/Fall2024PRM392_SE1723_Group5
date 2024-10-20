@@ -141,7 +141,7 @@
 
     <!-- Queue list -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/queueRecyclerView"
+        android:id="@+id/songQueueRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
@@ -153,3 +153,4 @@
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
