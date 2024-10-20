@@ -3,6 +3,7 @@ package fu.se.spotifi.DAO;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import fu.se.spotifi.Entities.SongList;
 @Dao
 public interface SongListDAO {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void addSongList(SongList songList);
 
     @Delete

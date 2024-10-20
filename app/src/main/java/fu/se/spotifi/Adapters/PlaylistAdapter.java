@@ -1,5 +1,6 @@
 package fu.se.spotifi.Adapters;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;

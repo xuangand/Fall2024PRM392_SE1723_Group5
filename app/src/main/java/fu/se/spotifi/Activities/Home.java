@@ -1,17 +1,16 @@
 package fu.se.spotifi.Activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +21,6 @@ import fu.se.spotifi.Adapters.SongAdapter;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Queue;
 import fu.se.spotifi.Entities.Song;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import fu.se.spotifi.R;
 
 public class Home extends BaseActivity {
