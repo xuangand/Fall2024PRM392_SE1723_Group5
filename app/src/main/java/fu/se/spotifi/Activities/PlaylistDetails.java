@@ -42,7 +42,7 @@ public class PlaylistDetails extends BaseActivity {
 
         findViewById(R.id.addSongButton).setOnClickListener(v -> {
             Intent intent = new Intent(this, SelectSongActivity.class);
-            startActivityForResult(intent, REQUEST_SELECT_SONG);
+            //startActivityForResult(intent, REQUEST_SELECT_SONG); //ham nay bi deprecated roi, ong sua cai nay lai di
         });
 
         setupBottomNavigation();
@@ -80,11 +80,12 @@ public class PlaylistDetails extends BaseActivity {
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Intent intent = new Intent(this, Library.class);
-        startActivity(intent);
-        finish();
-    }
+    //Bi deprecated luon roi, ong sua lai di
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//        Intent intent = new Intent(this, Library.class);
+//        startActivity(intent);
+//        finish();
+//    }
 }

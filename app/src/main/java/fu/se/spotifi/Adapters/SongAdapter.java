@@ -2,7 +2,6 @@ package fu.se.spotifi.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 
 import fu.se.spotifi.Activities.PlayingMusic;
 import fu.se.spotifi.Const.Utils;
-import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.R;
 
@@ -39,16 +37,17 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void onItemClick(Song song);
 
     }
+
     public interface OnItemLongClickListener {
         void onItemLongClick(Song song);
 
     }
 
-    public SongAdapter(@NonNull Context context, @NonNull ArrayList<Song> songs, OnItemClickListener listener,OnItemLongClickListener longListener, boolean isHomeActivity) {
+    public SongAdapter(@NonNull Context context, @NonNull ArrayList<Song> songs, OnItemClickListener listener, OnItemLongClickListener longListener, boolean isHomeActivity) {
         this.context = context;
         this.songs = songs;
         this.listener = listener;
-        this.longListener=longListener;
+        this.longListener = longListener;
         this.isHomeActivity = isHomeActivity;
     }
 
@@ -118,6 +117,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         }
     }
+
     private void showPopupMenu(View view, Song song) {
         PopupMenu popupMenu = new PopupMenu(context, view);
         popupMenu.inflate(R.menu.popup_menu); // Inflate your popup menu layout
@@ -134,8 +134,6 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         popupMenu.show(); // Show the popup menu
     }
-
-
 
 
     @Override
@@ -169,15 +167,18 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         }
     }
+
     public interface OnSongClickListener {
         void onSongClick(Song song);
     }
+
     private void addToQueue(Song song) {
         // Notify the listener if it's set
         if (listener != null) {
             listener.onItemClick(song); // Call the listener's method
         }
     }
+
     private void addNewQueue(Song song) {
         // Notify the listener if it's set
         if (longListener != null) {

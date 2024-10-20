@@ -33,6 +33,9 @@ public interface QueueDAO {
 
     @Query("DELETE FROM queue")
     void clearQueue();
+
+//    @Query("SELECT * FROM queue WHERE songId = :songId")
+//    void getSongFromQueue(int songId);
 }
 
 
