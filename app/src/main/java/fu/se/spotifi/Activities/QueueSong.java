@@ -79,15 +79,15 @@ public class QueueSong extends AppCompatActivity {
         }
 
         // Create a new MediaPlayer instance and play the selected song
-        mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.setDataSource(queue.getSongUrl()); // Get the song URL from the Queue object
-            mediaPlayer.prepare(); // Prepare the player asynchronously
-            mediaPlayer.start(); // Start the song
-            Toast.makeText(this, "Playing: " + queue.getSongTitle(), Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Toast.makeText(this, "Error playing song", Toast.LENGTH_SHORT).show();
-        }
+//        mediaPlayer = new MediaPlayer();
+//        try {
+//            mediaPlayer.setDataSource(queue.getSongUrl()); // Get the song URL from the Queue object
+//            mediaPlayer.prepare(); // Prepare the player asynchronously
+//            mediaPlayer.start(); // Start the song
+//            Toast.makeText(this, "Playing: " + queue.getSongTitle(), Toast.LENGTH_SHORT).show();
+//        } catch (IOException e) {
+//            Toast.makeText(this, "Error playing song", Toast.LENGTH_SHORT).show();
+//        }
     }
 
     @Override
