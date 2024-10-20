@@ -3,6 +3,8 @@ package fu.se.spotifi.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
+
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,14 +38,12 @@ public class PlaylistDetails extends BaseActivity {
 
         playlist = (Playlist) getIntent().getSerializableExtra("playlist");
 
+        ImageView back = findViewById(R.id.backButton);
+        back.setOnClickListener(v -> onBackPressed());
+
         if (playlist != null) {
             loadSongs(playlist.getId());
         }
-
-        findViewById(R.id.addSongButton).setOnClickListener(v -> {
-            Intent intent = new Intent(this, SelectSongActivity.class);
-            startActivityForResult(intent, REQUEST_SELECT_SONG);
-        });
 
         setupBottomNavigation();
     }

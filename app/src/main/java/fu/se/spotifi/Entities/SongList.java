@@ -2,9 +2,10 @@ package fu.se.spotifi.Entities;
 
 import androidx.room.Entity;
 import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "songlist")
+@Entity(tableName = "songlist", indices = {@Index(value = {"playlistId", "songId"}, unique = true)})
 public class SongList {
 
     @PrimaryKey(autoGenerate = true)
