@@ -22,6 +22,7 @@ import fu.se.spotifi.Adapters.SongAdapter;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Queue;
 import fu.se.spotifi.Entities.Song;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import fu.se.spotifi.R;
@@ -56,7 +57,7 @@ public class Home extends BaseActivity {
         songList = new ArrayList<>();
         songRecyclerView.setLayoutManager(horizontalLayoutManager);
         // Initialize the adapter with an empty song list
-        adapter = new SongAdapter(this, songList,this::onSongClick,this::onSongLongClick,true);
+        adapter = new SongAdapter(this, songList, this::onSongClick, this::onSongLongClick, true);
         songRecyclerView.setAdapter(adapter);
 
         // Load songs in a background thread
@@ -79,26 +80,27 @@ public class Home extends BaseActivity {
     }
 
 
-    private void onSongLongClick(Song song){
+    private void onSongLongClick(Song song) {
         addNewQueue(song);
     }
+
     private void addToQueue(Song song) {
         executorService.execute(() -> {
 
             SpotifiDatabase db = SpotifiDatabase.getInstance(this);
             List<Queue> currentQueue = db.queueDAO().loadAllQueues();
             int queueOrder = currentQueue.size() + 1;
-        Queue queue = new Queue();
-        queue.setQueueId(currentQueue.size() + 1);
-        queue.setOrder(queueOrder);
-        queue.setStatus("Waiting");
-        queue.setSongId(song.getId());
+            Queue queue = new Queue();
+            queue.setQueueId(currentQueue.size() + 1);
+            queue.setOrder(queueOrder);
+            queue.setStatus("Paused");
+            queue.setSongId(song.getId());
 //        queue.setSongTitle(song.getTitle());
 //        queue.setSongUrl(song.getUrl());
 //        queue.setSongArtist(song.getArtist());
 //        queue.setSongThumbnail(song.getThumbnail());
 
-        // Use executor service to run the database operation in a background thread
+            // Use executor service to run the database operation in a background thread
 
             db.queueDAO().addQueue(queue); // Add the queue to the database
 
@@ -136,6 +138,7 @@ public class Home extends BaseActivity {
             });
         });
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
