@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#1E1E1E">
+    android:background="#1E1E1E"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,6 +47,7 @@
         android:background="#333333"/>
 
     <TextView
+        android:id="@+id/addToQueue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Add to queue"
@@ -55,15 +57,7 @@
         android:drawablePadding="16dp"/>
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save to playlist"
-        android:textColor="#FFFFFF"
-        android:padding="16dp"
-        android:drawableStart="@drawable/ic_save_to_playlist"
-        android:drawablePadding="16dp"/>
-
-    <TextView
+        android:id="@+id/removeFromPlaylist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Remove from playlist"
@@ -73,6 +67,7 @@
         android:drawablePadding="16dp"/>
 
     <TextView
+        android:id="@+id/goToArtist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Go to artist"
@@ -82,6 +77,7 @@
         android:drawablePadding="16dp"/>
 
     <TextView
+        android:id="@+id/viewSongCredits"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="View song credits"

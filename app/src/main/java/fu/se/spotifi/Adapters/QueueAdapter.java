@@ -43,9 +43,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Queue queueItem = queueList.get(position);
-        holder.songTitle.setText(queueItem.getSongTitle());
-        holder.songArtist.setText(queueItem.getSongArtist());
-        Glide.with(context).load(queueItem.getSongThumbnail()).into(holder.songThumbnail);
+//        holder.songTitle.setText(queueItem.getSongTitle());
+//        holder.songArtist.setText(queueItem.getSongArtist());
+//        Glide.with(context).load(queueItem.getSongThumbnail()).into(holder.songThumbnail);
         holder.queuePosition.setText(String.valueOf(position + 1));
     }
 

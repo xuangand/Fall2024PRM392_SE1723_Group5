@@ -3,19 +3,23 @@ package fu.se.spotifi.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
+
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import fu.se.spotifi.Adapters.SongAdapter;
+import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Playlist;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.Entities.SongList;
 import fu.se.spotifi.R;
-import fu.se.spotifi.Database.SpotifiDatabase;
 
 public class PlaylistDetails extends BaseActivity {
     private static final int REQUEST_SELECT_SONG = 1;
@@ -36,14 +40,12 @@ public class PlaylistDetails extends BaseActivity {
 
         playlist = (Playlist) getIntent().getSerializableExtra("playlist");
 
+        ImageView back = findViewById(R.id.backButton);
+        back.setOnClickListener(v -> onBackPressed());
+
         if (playlist != null) {
             loadSongs(playlist.getId());
         }
-
-        findViewById(R.id.addSongButton).setOnClickListener(v -> {
-            Intent intent = new Intent(this, SelectSongActivity.class);
-            startActivityForResult(intent, REQUEST_SELECT_SONG);
-        });
 
         setupBottomNavigation();
     }
@@ -65,8 +67,8 @@ public class PlaylistDetails extends BaseActivity {
             List<Song> songList = db.songListDAO().loadSongsByPlaylistId(playlistId);
             runOnUiThread(() -> {
                 songAdapter = new SongAdapter(this, (ArrayList<Song>) songList, song -> {
-                 },song -> {
-                },false);
+                }, song -> {
+                }, false);
                 songRecyclerView.setAdapter(songAdapter);
             });
         });
@@ -80,11 +82,12 @@ public class PlaylistDetails extends BaseActivity {
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Intent intent = new Intent(this, Library.class);
-        startActivity(intent);
-        finish();
-    }
+    //Bi deprecated luon roi, ong sua lai di
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//        Intent intent = new Intent(this, Library.class);
+//        startActivity(intent);
+//        finish();
+//    }
 }

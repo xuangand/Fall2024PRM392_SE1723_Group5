@@ -1,5 +1,6 @@
 package fu.se.spotifi.Adapters;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -17,8 +18,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import fu.se.spotifi.Activities.PlayingMusic;
+import fu.se.spotifi.Activities.PlaylistDetails;
 import fu.se.spotifi.Const.Utils;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Song;
@@ -31,6 +35,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     OnItemClickListener listener;
     private boolean isHomeActivity;
     OnItemLongClickListener longListener;
+    ExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
     private static final int HOME_VIEW_TYPE = 0;
     private static final int NORMAL_VIEW_TYPE = 1;
@@ -90,9 +95,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
             homeHolder.itemView.setOnClickListener(v -> {
                 // Call method to clear the queue and add the new song
-
                 addNewQueue(song);
-
                 Intent intent = new Intent(context, PlayingMusic.class);
 
                 // Pass the song details to the new activity, if needed
@@ -105,16 +108,16 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 // Start PlayingMusicActivity
                 context.startActivity(intent);
             });
-
-
         } else if (holder instanceof ViewHolder) {
             ViewHolder viewHolder = (ViewHolder) holder;
             viewHolder.songTitle.setText(song.getTitle());
             viewHolder.songArtist.setText(song.getArtist());
             viewHolder.duration.setText(utils.milisecondsToString(song.getDuration()));
             Glide.with(context).load(song.getThumbnail()).into(viewHolder.songThumbnail);
-            viewHolder.itemView.setOnClickListener(v -> {
-                addToQueue(song);
+
+            viewHolder.itemView.setOnLongClickListener(v -> {
+                showEditPlaylistDialog(song);
+                return true;
             });
         }
     }
@@ -135,9 +138,6 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         popupMenu.show(); // Show the popup menu
     }
 
-
-
-
     @Override
     public int getItemCount() {
         return songs.size();
@@ -145,7 +145,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView songTitle, songArtist, duration;
-        ImageView songThumbnail;
+        ImageView songThumbnail, optionsButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -153,6 +153,8 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             songArtist = itemView.findViewById(R.id.songArtist);
             duration = itemView.findViewById(R.id.songDuration);
             songThumbnail = itemView.findViewById(R.id.songThumbnail);
+            optionsButton = itemView.findViewById(R.id.optionsButton);
+
         }
     }
 
@@ -185,5 +187,55 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    private void showEditPlaylistDialog(Song song) {
+        Dialog dialog = new Dialog(context);
+        dialog.setContentView(R.layout.activity_playlist_edit);
 
+        TextView addToQueue = dialog.findViewById(R.id.addToQueue);
+        TextView removeFromPlaylist = dialog.findViewById(R.id.removeFromPlaylist);
+        TextView goToArtist = dialog.findViewById(R.id.goToArtist);
+        TextView viewSongCredits = dialog.findViewById(R.id.viewSongCredits);
+
+        // Set initial values if needed
+        // For example, you can set the song details in the dialog
+
+        addToQueue.setOnClickListener(v -> {
+            // Handle add to queue action
+            addToQueue(song);
+            dialog.dismiss();
+            Toast.makeText(context, "Added to queue", Toast.LENGTH_SHORT).show();
+        });
+
+        removeFromPlaylist.setOnClickListener(v -> {
+            // Handle remove from playlist action
+            removeFromPlaylist(song);
+            dialog.dismiss();
+            Toast.makeText(context, "Removed from playlist", Toast.LENGTH_SHORT).show();
+        });
+
+        goToArtist.setOnClickListener(v -> {
+            // Handle go to artist action
+            dialog.dismiss();
+        });
+
+        viewSongCredits.setOnClickListener(v -> {
+            // Handle view song credits action
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private void removeFromPlaylist(Song song) {
+        executorService.execute(() -> {
+            SpotifiDatabase db = SpotifiDatabase.getInstance(context);
+            db.playlistDAO().removeSongFromPlaylist(song.getId());
+
+            // Remove the song from the list and notify the adapter on the UI thread
+            ((PlaylistDetails) context).runOnUiThread(() -> {
+                songs.remove(song);
+                notifyDataSetChanged();
+            });
+        });
+    }
 }

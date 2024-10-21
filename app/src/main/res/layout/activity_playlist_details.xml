@@ -83,13 +83,13 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Play"/>
 
-        <ImageButton
-            android:id="@+id/addSongButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_add_medium"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Add Song"/>
+<!--        <ImageButton-->
+<!--            android:id="@+id/addSongButton"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:src="@drawable/ic_add_medium"-->
+<!--            android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--            android:contentDescription="Add Song"/>-->
     </LinearLayout>
 
     <!-- RecyclerView for Songs -->
