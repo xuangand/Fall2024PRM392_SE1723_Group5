@@ -31,7 +31,11 @@
             android:exported="false"/>
         <activity
             android:name=".Activities.QueueSong"
-            android:exported="false">
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".Activities.SongDetails"
@@ -41,7 +45,12 @@
             android:exported="false" />
         <activity
             android:name=".Activities.SearchActivity"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".Activities.BaseActivity"
             android:exported="false" />

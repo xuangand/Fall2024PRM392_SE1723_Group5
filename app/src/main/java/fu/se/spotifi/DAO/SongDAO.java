@@ -25,4 +25,7 @@ public interface SongDAO {
     List<Song> loadAllSongs();
     @Query("SELECT * FROM songs WHERE id = :songId")
     Song getSongById(int songId);
+
+    @Query("SELECT * FROM songs WHERE title LIKE :query OR artist LIKE :query")
+    List<Song> searchSongs(String query);
 }
