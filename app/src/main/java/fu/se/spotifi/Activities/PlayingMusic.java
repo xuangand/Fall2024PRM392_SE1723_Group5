@@ -40,8 +40,8 @@ public class PlayingMusic extends AppCompatActivity {
     private ExecutorService executorService = Executors.newFixedThreadPool(2);
     private MediaPlayer musicPlayer = new MediaPlayer();
     //<editor-fold defaultstate="collapsed" desc="Get selected song">
-    Intent getSong = getIntent();
-    int selectedSong = getSong.getIntExtra("songId", -1);
+    Intent getSong;
+    int selectedSong = -1;
     //</editor-fold>
 
     @Override
@@ -74,6 +74,8 @@ public class PlayingMusic extends AppCompatActivity {
 
         //<editor-fold defaultstate="collapsed" desc="Fill song data to layout">
         executorService.execute(() -> {
+            getSong = getIntent();
+            selectedSong = getSong.getIntExtra("songId", -1);
             SpotifiDatabase db = SpotifiDatabase.getInstance(this);
             SongDAO songDAO = db.songDAO();
             Song selectedSongData = songDAO.getSongById(selectedSong);
@@ -242,6 +244,7 @@ public class PlayingMusic extends AppCompatActivity {
 
     private void saveSongToPlaylist(String playlistName) {
         executorService.execute(() -> {
+            selectedSong = getSong.getIntExtra("songId", -1);
             SpotifiDatabase db = SpotifiDatabase.getInstance(this);
             Playlist playlist = db.playlistDAO().getPlaylistByName(playlistName);
             if (playlist != null) {
