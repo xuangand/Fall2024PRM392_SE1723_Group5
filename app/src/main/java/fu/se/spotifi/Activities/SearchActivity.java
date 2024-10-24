@@ -105,13 +105,13 @@ public class SearchActivity extends BaseActivity implements SongAdapter.OnItemCl
         saveSongToDatabase(song);
 
         // Start playing the song
-        Intent intent = new Intent(this, PlayingMusic.class);
-        intent.putExtra("songId", song.getId());  // Check if song.getId() returns a valid value
-        intent.putExtra("songTitle", song.getTitle());
-        intent.putExtra("songArtist", song.getArtist());
-        intent.putExtra("songUrl", song.getUrl());  // Assuming getUrl() returns the song's URL
-        intent.putExtra("songThumbnail", song.getThumbnail());
-        startActivity(intent);
+//        Intent intent = new Intent(this, PlayingMusic.class);
+//        intent.putExtra("songId", song.getId());  // Check if song.getId() returns a valid value
+//        intent.putExtra("songTitle", song.getTitle());
+//        intent.putExtra("songArtist", song.getArtist());
+//        intent.putExtra("songUrl", song.getUrl());  // Assuming getUrl() returns the song's URL
+//        intent.putExtra("songThumbnail", song.getThumbnail());
+//        startActivity(intent);
     }
     private void setupRecyclerView() {
         recyclerViewResults.setLayoutManager(new LinearLayoutManager(this));

@@ -114,7 +114,11 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewHolder.songArtist.setText(song.getArtist());
             viewHolder.duration.setText(utils.milisecondsToString(song.getDuration()));
             Glide.with(context).load(song.getThumbnail()).into(viewHolder.songThumbnail);
+            viewHolder.itemView.setOnClickListener(v -> {
+                // Call method to clear the queue and add the new song
+                addNewQueue(song);
 
+            });
             viewHolder.itemView.setOnLongClickListener(v -> {
                 showEditPlaylistDialog(song);
                 return true;
@@ -174,13 +178,13 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public interface OnSongClickListener {
         void onSongClick(Song song);
     }
-    private void addToQueue(Song song) {
+    private void addNewQueue(Song song) {
         // Notify the listener if it's set
         if (listener != null) {
             listener.onItemClick(song); // Call the listener's method
         }
     }
-    private void addNewQueue(Song song) {
+    private void addToQueue(Song song) {
         // Notify the listener if it's set
         if (longListener != null) {
             longListener.onItemLongClick(song); // Call the listener's method
