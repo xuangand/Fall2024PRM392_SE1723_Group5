@@ -28,6 +28,9 @@ public class BaseActivity extends AppCompatActivity {
             } else if (itemId == R.id.library && !(this instanceof Library)) {
                 startActivity(new Intent(this, Library.class));
                 return true;
+            }else if (itemId == R.id.search && !(this instanceof SearchActivity)) {
+                startActivity(new Intent(this, SearchActivity.class));
+                return true;
             }
             // Add other menu items here
             return false;
@@ -44,7 +47,9 @@ public class BaseActivity extends AppCompatActivity {
                 itemId = R.id.home;
             } else if (this instanceof Library) {
                 itemId = R.id.library;
-            } else {
+            } else if(this instanceof SearchActivity){
+                itemId = R.id.search;
+            }else {
                 // Default or handle other activities
                 return;
             }

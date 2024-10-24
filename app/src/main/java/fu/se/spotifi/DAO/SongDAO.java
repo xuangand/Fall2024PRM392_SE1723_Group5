@@ -3,6 +3,7 @@ package fu.se.spotifi.DAO;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -26,6 +27,10 @@ public interface SongDAO {
     @Query("SELECT * FROM songs WHERE id = :songId")
     Song getSongById(int songId);
 
-    @Query("SELECT * FROM songs WHERE title LIKE :query OR artist LIKE :query")
-    List<Song> searchSongs(String query);
+    @Query("SELECT * FROM songs WHERE title LIKE :searchQuery OR artist LIKE :searchQuery")
+    List<Song> searchSongs(String searchQuery);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(Song song);
+
 }

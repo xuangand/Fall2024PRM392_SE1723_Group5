@@ -77,7 +77,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // Use the isHomeActivity flag to determine which layout to use
         return isHomeActivity ? HOME_VIEW_TYPE : NORMAL_VIEW_TYPE;
     }
-
+    
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Song song = songs.get(position);

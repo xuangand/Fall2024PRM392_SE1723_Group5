@@ -1,6 +1,7 @@
 package fu.se.spotifi.Entities;
 
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -25,6 +26,13 @@ public class Song implements Serializable {
         this.url = url;
         this.duration = duration;
         this.thumbnail = thumbnail;
+    }
+    @Ignore
+    public Song(@NonNull int id, String title, String artist, String url) {
+        this.id = id;
+        this.title = title;
+        this.artist = artist;
+        this.url = url;
     }
 
     @Ignore
