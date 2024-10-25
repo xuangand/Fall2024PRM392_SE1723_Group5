@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import fu.se.spotifi.Activities.ArtistDetail;
 import fu.se.spotifi.Activities.PlayingMusic;
 import fu.se.spotifi.Activities.PlaylistDetails;
+import fu.se.spotifi.Activities.SongDetails;
 import fu.se.spotifi.Const.Utils;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Song;
@@ -215,11 +217,17 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         goToArtist.setOnClickListener(v -> {
             // Handle go to artist action
+            Intent intent = new Intent(context, ArtistDetail.class);
+            intent.putExtra("songId", song.getId());
+            context.startActivity(intent);
             dialog.dismiss();
         });
 
         viewSongCredits.setOnClickListener(v -> {
             // Handle view song credits action
+            Intent intent = new Intent(context, SongDetails.class);
+            intent.putExtra("songId", song.getId());
+            context.startActivity(intent);
             dialog.dismiss();
         });
 
