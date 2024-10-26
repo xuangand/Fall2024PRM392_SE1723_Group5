@@ -3,6 +3,7 @@
     <style name="Base.Theme.Spotifi" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">#3E1E1E</item>"
     </style>
     <style name="DialogAnimation">
         <item name="android:windowEnterAnimation">@anim/slide_up</item>

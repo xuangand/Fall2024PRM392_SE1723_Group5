@@ -85,10 +85,10 @@ public class Home extends BaseActivity {
 
             SpotifiDatabase db = SpotifiDatabase.getInstance(this);
             List<Queue> currentQueue = db.queueDAO().loadAllQueues();
-            int queueOrder = currentQueue.size() + 1;
+            int songOrder = currentQueue.size() + 1;
             Queue queue = new Queue();
             queue.setQueueId(currentQueue.size() + 1);
-            queue.setOrder(queueOrder);
+            queue.setSongOrder(songOrder);
             queue.setStatus("Paused");
             queue.setSongId(song.getId());
 //        queue.setSongTitle(song.getTitle());
@@ -117,13 +117,9 @@ public class Home extends BaseActivity {
             // Create a new Queue object
             Queue newQueueEntry = new Queue();
             newQueueEntry.setQueueId(1);
-            newQueueEntry.setOrder(1);
+            newQueueEntry.setSongOrder(1);
             newQueueEntry.setStatus("Playing");
             newQueueEntry.setSongId(song.getId());
-//            newQueueEntry.setSongUrl(song.getUrl());
-//            newQueueEntry.setSongTitle(song.getTitle());
-//            newQueueEntry.setSongArtist(song.getArtist());
-//            newQueueEntry.setSongThumbnail(song.getThumbnail());
 
             // Add the song to the queue
             db.queueDAO().addQueue(newQueueEntry);

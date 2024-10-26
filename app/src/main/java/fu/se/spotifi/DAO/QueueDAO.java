@@ -11,6 +11,7 @@ import androidx.room.Update;
 import java.util.List;
 
 import fu.se.spotifi.Entities.Queue;
+import fu.se.spotifi.Entities.Song;
 
 @Dao
 public interface QueueDAO {
@@ -33,9 +34,11 @@ public interface QueueDAO {
 
     @Query("DELETE FROM queue")
     void clearQueue();
+    @Query("SELECT * FROM queue WHERE songOrder = :nextOrder")
+    Queue getSongByOrder(int nextOrder);
 
-//    @Query("SELECT * FROM queue WHERE songId = :songId")
-//    void getSongFromQueue(int songId);
+    @Query("SELECT * FROM queue WHERE songId = :songId")
+    Queue getSongFromQueue(int songId);
 }
 
 
