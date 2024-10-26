@@ -8,6 +8,7 @@ import androidx.room.Update;
 
 import java.util.List;
 
+import fu.se.spotifi.Entities.Queue;
 import fu.se.spotifi.Entities.Song;
 
 @Dao
@@ -25,4 +26,8 @@ public interface SongDAO {
     List<Song> loadAllSongs();
     @Query("SELECT * FROM songs WHERE id = :songId")
     Song getSongById(int songId);
+    @Query("SELECT * FROM songs WHERE url = :string")
+    Song getSongByUrl(String string);
+    @Query("SELECT * FROM songs WHERE id IN (:queueList)")
+    List<Song> getSongsFromQueue(List<Integer> queueList);
 }

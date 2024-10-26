@@ -1,8 +1,12 @@
 package fu.se.spotifi.Activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.media.session.MediaSession;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -16,16 +20,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.media3.common.AudioAttributes;
+import androidx.media3.common.C;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.ExoPlayer;
 
 import com.bumptech.glide.Glide;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import fu.se.spotifi.Const.Utils;
 import fu.se.spotifi.Database.SpotifiDatabase;
@@ -37,11 +44,18 @@ import fu.se.spotifi.R;
 
 public class PlayingMusic extends AppCompatActivity {
     private ScheduledExecutorService scheduledExecutorService;
-    private ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private final ExecutorService playerService = Executors.newSingleThreadExecutor();
     private MediaPlayer musicPlayer = new MediaPlayer();
-    //<editor-fold defaultstate="collapsed" desc="Get selected song">
+    ExoPlayer player;
+    private MediaSession mediaSession;
+    Utils utils = new Utils();
+
+
+    //<editor-fold defaultstate="collapsed" desc="Initialize selected song">
     Intent getSong;
     int selectedSong = -1;
+    private List<MediaItem> playlist = new ArrayList<>();
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Initialization">
@@ -50,7 +64,7 @@ public class PlayingMusic extends AppCompatActivity {
     TextView upNext;
     TextView title;
     TextView artist;
-    ImageButton playPauseButton ;
+    ImageButton playPauseButton;
     SeekBar seekBar;
     TextView progressDurationTimer;
     TextView endDurationTimer;
@@ -73,7 +87,7 @@ public class PlayingMusic extends AppCompatActivity {
         });
         //<editor-fold defaultstate="collapsed" desc="Initialization">
         SpotifiDatabase db = SpotifiDatabase.getInstance(this);
-        Utils utils = new Utils();
+
         lyrics = findViewById(R.id.lyrics);
         details = findViewById(R.id.details);
         upNext = findViewById(R.id.upNext);
@@ -90,75 +104,93 @@ public class PlayingMusic extends AppCompatActivity {
         albumArt = findViewById(R.id.albumArt);
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Fill song data to layout">
-        executorService.execute(() -> {
-            getSong = getIntent();
-            selectedSong = getSong.getIntExtra("songId", -1);
-            Song selectedSongData = db.songDAO().getSongById(selectedSong);
-            if (selectedSongData != null) {
-                title.setText(selectedSongData.getTitle());
-                artist.setText(selectedSongData.getArtist());
-                runOnUiThread(() -> Glide.with(this).load(selectedSongData.getThumbnail()).into(albumArt));
-            }
+        setupExoPlayer();
+        loadPlaylistFromDatabase();
 
-            try {
-                // Set the data source from URL and prepare the player asynchronously
-                musicPlayer.setDataSource(selectedSongData.getUrl());
-                musicPlayer.prepareAsync();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            musicPlayer.setOnPreparedListener(mp -> {
-                // Set the duration once the song is ready
-                String duration = utils.milisecondsToString(musicPlayer.getDuration());
-                endDurationTimer.setText(duration);
+        selectedSong = getIntent().getIntExtra("songId", -1);
+        if (selectedSong != -1) {
+            playSong(selectedSong);
+        }
+        SharedPreferences prefs = getSharedPreferences("music_app_spotifi", Context.MODE_PRIVATE);
+        if (selectedSong == -1) {
+            selectedSong = prefs.getInt("selectedSong", -1); //in case selecteSong didn't get from intent
+        }
+        //store selected song to reuse it later
+        prefs.edit().putInt("selectedSong", selectedSong).apply();
 
-                // Set up the SeekBar max value
-                seekBar.setMax(musicPlayer.getDuration());
-
-                // Play the song once prepared
-                musicPlayer.start();
-                playPauseButton.setImageResource(R.drawable.ic_pause);
-            });
-
-            musicPlayer.setLooping(true);
-        });
+        //<editor-fold defaultstate="collapsed" desc="Fill song data from intent">
+//        executorService.execute(() -> {
+//            SharedPreferences prefs = getSharedPreferences("music_app_spotifi", Context.MODE_PRIVATE);
+//            if (selectedSong == -1) {
+//                selectedSong = prefs.getInt("selectedSong", -1); //in case selecteSong didn't get from intent
+//            }
+//            //store selected song to reuse it later
+//            prefs.edit().putInt("selectedSong", selectedSong).apply();
+//
+//            Song selectedSongData = db.songDAO().getSongById(selectedSong);
+//            if (selectedSongData != null) {
+//                title.setText(selectedSongData.getTitle());
+//                artist.setText(selectedSongData.getArtist());
+//                runOnUiThread(() -> Glide.with(this).load(selectedSongData.getThumbnail()).into(albumArt));
+//                try {
+//                    // Set the data source from URL and prepare the player asynchronously
+//                    musicPlayer.setDataSource(selectedSongData.getUrl());
+//                    musicPlayer.prepareAsync();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//            musicPlayer.setOnPreparedListener(mp -> {
+//                // Set the duration once the song is ready
+//                String duration = utils.milisecondsToString(musicPlayer.getDuration());
+//                endDurationTimer.setText(duration);
+//
+//                // Set up the SeekBar max value
+//                seekBar.setMax(musicPlayer.getDuration());
+//
+//                // Play the song once prepared
+//                musicPlayer.start();
+//                playPauseButton.setImageResource(R.drawable.ic_pause);
+//            });
+//
+//            musicPlayer.setLooping(true);
+//        });
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Set up seekBar">
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean isFromUser) {
-                if (isFromUser) {
-                    musicPlayer.seekTo(progress);
-                    seekBar.setProgress(progress);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
+//        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean isFromUser) {
+//                if (isFromUser) {
+//                    musicPlayer.seekTo(progress);
+//                    seekBar.setProgress(progress);
+//                }
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//            }
+//        });
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Update UI while song is playing">
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutorService.scheduleWithFixedDelay(() -> {
-            if (musicPlayer != null && musicPlayer.isPlaying()) {
-                final double current = musicPlayer.getCurrentPosition();
-                final String elapseTime = utils.milisecondsToString((int) current);
-
-                // Update UI on the main thread
-                runOnUiThread(() -> {
-                    progressDurationTimer.setText(elapseTime);
-                    seekBar.setProgress((int) current);
-                });
-            }
-        }, 0, 1, TimeUnit.SECONDS);
+//        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+//        scheduledExecutorService.scheduleWithFixedDelay(() -> {
+//            if (player != null && player.isPlaying()) {
+//                final double current = player.getCurrentPosition();
+//                final String elapseTime = utils.milisecondsToString((int) current);
+//
+//                // Update UI on the main thread
+//                runOnUiThread(() -> {
+//                    progressDurationTimer.setText(elapseTime);
+//                    seekBar.setProgress((int) current);
+//                });
+//            }
+//        }, 0, 1, TimeUnit.SECONDS);
         //</editor-fold>
         lyrics.setOnClickListener(view -> {
             Intent iLyrics = new Intent(PlayingMusic.this, Lyrics.class);
@@ -173,44 +205,124 @@ public class PlayingMusic extends AppCompatActivity {
             startActivity(intent);
         });
 
-        playPauseButton.setOnClickListener(view -> {
-            if (musicPlayer.isPlaying()) {
-                musicPlayer.pause();
-                playPauseButton.setImageResource(R.drawable.ic_play);
+        findViewById(R.id.playPauseButton).setOnClickListener(view -> {
+            if (player.isPlaying()) {
+                player.pause();
+                playPauseButton.setImageResource(R.drawable.ic_play); // Update to play icon
             } else {
-                musicPlayer.start();
-                playPauseButton.setImageResource(R.drawable.ic_pause);
+                player.play();
+                playPauseButton.setImageResource(R.drawable.ic_pause); // Update to pause icon
             }
         });
         nextButton.setOnClickListener(view -> {
-            executorService.execute(() -> {
-                Queue currentQueueEntry = db.queueDAO().getSongFromQueue(selectedSong);
-                if (currentQueueEntry != null) {
-                    Song nextSong = getNextSongInQueue(currentQueueEntry.getSongOrder());
-                    if (nextSong != null) {
-                        playSong(nextSong); // Method to play the selected song
-                    } else {
-                        runOnUiThread(() -> Toast.makeText(this, "End of queue", Toast.LENGTH_SHORT).show());
-                    }
-                }
-            });
+//            executorService.execute(() -> {
+//                Queue currentQueueEntry = db.queueDAO().getSongFromQueue(selectedSong);
+//                if (currentQueueEntry != null) {
+//                    Song nextSong = getNextSongInQueue(currentQueueEntry.getSongOrder());
+//                    if (nextSong != null) {
+//                        playSong(nextSong); // Method to play the selected song
+//                    } else {
+//                        runOnUiThread(() -> Toast.makeText(this, "End of queue", Toast.LENGTH_SHORT).show());
+//                    }
+//                }
+//            });
+            player.seekToNextMediaItem();
         });
         previousButton.setOnClickListener(view -> {
-            executorService.execute(() -> {
-                Queue currentQueueEntry = db.queueDAO().getSongFromQueue(selectedSong);
-
-                if (currentQueueEntry != null) {
-                    Song previousSong = getPreviousSongInQueue(currentQueueEntry.getSongOrder());
-                    if (previousSong != null) {
-                        playSong(previousSong); // Method to play the selected song
-                    } else {
-                        runOnUiThread(() -> Toast.makeText(this, "Start of queue", Toast.LENGTH_SHORT).show());
-                    }
-                }
-            });
+//            executorService.execute(() -> {
+//                Queue currentQueueEntry = db.queueDAO().getSongFromQueue(selectedSong);
+//
+//                if (currentQueueEntry != null) {
+//                    Song previousSong = getPreviousSongInQueue(currentQueueEntry.getSongOrder());
+//                    if (previousSong != null) {
+//                        playSong(previousSong); // Method to play the selected song
+//                    } else {
+//                        runOnUiThread(() -> Toast.makeText(this, "Start of queue", Toast.LENGTH_SHORT).show());
+//                    }
+//                }
+//            });
+            player.seekToPreviousMediaItem();
         });
+        setupSeekBar();
 
         saveButton.setOnClickListener(view -> showPlaylistDialog());
+    }
+
+    private void setupExoPlayer() {
+        // Initialize ExoPlayer with MediaSession
+        player = new ExoPlayer.Builder(this)
+                .setAudioAttributes(AudioAttributes.DEFAULT, true) //Audio focus: turn off other sound if this one is playing
+                .setHandleAudioBecomingNoisy(true) //Automatically pause when headphone is disconnected or when other app interrupt like phone call
+                .setWakeMode(C.WAKE_MODE_LOCAL).build(); //Playing even when phone is turned off
+
+        //mediaSession = new MediaSession.Builder(this, player).build();
+
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onMediaItemTransition(MediaItem mediaItem, int reason) {
+                updateUIForMediaItem(mediaItem);
+            }
+
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                if (playbackState == Player.STATE_READY && player.getDuration() > 0) {
+                    endDurationTimer.setText(utils.milisecondsToString((int) player.getDuration()));
+                    seekBar.setMax((int) player.getDuration());
+                }
+            }
+
+            @Override
+            public void onIsPlayingChanged(boolean isPlaying) {
+                if (isPlaying) {
+                    playPauseButton.setImageResource(R.drawable.ic_pause);
+                    startSeekBarUpdater(); // Start updating seek bar when playing
+                } else {
+                    playPauseButton.setImageResource(R.drawable.ic_play);
+                    stopSeekBarUpdater();  // Stop updating seek bar when paused
+                }
+            }
+        });
+    }
+
+    private void updateUIForMediaItem(MediaItem mediaItem) {
+        getSongFromMediaItem(mediaItem, song -> {
+            if (song != null) {
+                title.setText(song.getTitle());
+                artist.setText(song.getArtist());
+                Glide.with(this).load(song.getThumbnail()).into(albumArt);
+            } else {
+                Toast.makeText(this, "Song data not found", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getSongFromMediaItem(MediaItem mediaItem, SongCallback callback) {
+        executorService.execute(() -> {
+            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+            Song song = db.songDAO().getSongByUrl(mediaItem.localConfiguration.uri.toString());
+
+            runOnUiThread(() -> callback.onSongRetrieved(song));
+        });
+    }
+
+
+    private void setupSeekBar() {
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    player.seekTo(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
     }
 
     private void showPlaylistDialog() {
@@ -260,6 +372,7 @@ public class PlayingMusic extends AppCompatActivity {
             }
         });
     }
+
     private Song getNextSongInQueue(int currentOrder) {
         int nextOrder = currentOrder + 1;
         SpotifiDatabase db = SpotifiDatabase.getInstance(this);
@@ -270,6 +383,7 @@ public class PlayingMusic extends AppCompatActivity {
         }
         return null; // Handle if there’s no next song
     }
+
     private Song getPreviousSongInQueue(int currentOrder) {
         int previousOrder = currentOrder - 1;
         SpotifiDatabase db = SpotifiDatabase.getInstance(this);
@@ -280,41 +394,98 @@ public class PlayingMusic extends AppCompatActivity {
         }
         return null; // Handle if there’s no previous song
     }
-    private void playSong(Song song) {
-        runOnUiThread(() -> {
-            title.setText(song.getTitle());
-            artist.setText(song.getArtist());
-            Glide.with(this).load(song.getThumbnail()).into(albumArt);
+
+    private void playSong(int songId) {
+        executorService.execute(() -> {
+            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+            Song selectedSongData = db.songDAO().getSongById(songId);
+
+            if (selectedSongData != null) {
+                MediaItem mediaItem = MediaItem.fromUri(selectedSongData.getUrl());
+                runOnUiThread(() -> {
+                    player.setMediaItem(mediaItem);
+                    player.prepare();
+                    player.play();
+                });
+            } else {
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Song not found", Toast.LENGTH_SHORT).show()
+                );
+            }
         });
+//        runOnUiThread(() -> {
+//            title.setText(song.getTitle());
+//            artist.setText(song.getArtist());
+//            Glide.with(this).load(song.getThumbnail()).into(albumArt);
+//        });
+//        try {
+//            musicPlayer.reset();
+//            musicPlayer.setDataSource(song.getUrl());
+//            musicPlayer.prepareAsync();
+//        } catch (IOException e) {
+//            e.getMessage();
+//        }
+//
+//        musicPlayer.setOnPreparedListener(mp -> {
+//            seekBar.setMax(musicPlayer.getDuration());
+//            musicPlayer.start();
+//            playPauseButton.setImageResource(R.drawable.ic_pause);
+//        });
+//
+//        selectedSong = song.getId(); // Update the current song ID
+    }
 
-        try {
-            musicPlayer.reset();
-            musicPlayer.setDataSource(song.getUrl());
-            musicPlayer.prepareAsync();
-        } catch (IOException e) {
-            e.getMessage();
-        }
-
-        musicPlayer.setOnPreparedListener(mp -> {
-            seekBar.setMax(musicPlayer.getDuration());
-            musicPlayer.start();
-            playPauseButton.setImageResource(R.drawable.ic_pause);
+    private void loadPlaylistFromDatabase() {
+        executorService.execute(() -> {
+            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+            List<Integer> currentQueue = db.queueDAO().getSongsFromQueue();
+            List<Song> songs = db.songDAO().getSongsFromQueue(currentQueue);
+            for (Song song : songs) {
+                playlist.add(MediaItem.fromUri(song.getUrl()));
+            }
+            runOnUiThread(() -> {
+                player.setMediaItems(playlist);
+                player.prepare();
+            });
         });
-
-        selectedSong = song.getId(); // Update the current song ID
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         executorService.shutdown(); // Shut down the executor service
-        if (musicPlayer != null) {
-            musicPlayer.release(); // Release MediaPlayer resources
-            musicPlayer = null;
+        if (player != null) {
+            player.release(); // Release MediaPlayer resources
+            player = null;
         }
         if (scheduledExecutorService != null) {
             scheduledExecutorService.shutdown(); // Shut down the scheduled executor service
         }
+    }
+
+    interface SongCallback {
+        void onSongRetrieved(Song song);
+    }
+
+    private final Handler handler = new Handler();
+    private final Runnable updateSeekBarRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (player != null && player.isPlaying()) {
+                int currentPosition = (int) player.getCurrentPosition();
+                seekBar.setProgress(currentPosition);
+                progressDurationTimer.setText(utils.milisecondsToString(currentPosition));
+                handler.postDelayed(this, 1000); // Update every second
+            }
+        }
+    };
+
+    private void startSeekBarUpdater() {
+        handler.post(updateSeekBarRunnable);
+    }
+
+    private void stopSeekBarUpdater() {
+        handler.removeCallbacks(updateSeekBarRunnable);
     }
     //<editor-fold defaultstate="collapsed" desc="Retrieve metadata">
 //        ffmmr = new FFmpegMediaMetadataRetriever();
