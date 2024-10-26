@@ -1,7 +1,11 @@
 package fu.se.spotifi.Activities;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -38,14 +42,14 @@ public class Home extends BaseActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
 
-        AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
-        if (appBarLayout != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(appBarLayout, (v, insets) -> {
-                return insets;
-            });
-        } else {
-            Log.e("Home", "AppBarLayout is null");
-        }
+//        AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+//        if (appBarLayout != null) {
+//            ViewCompat.setOnApplyWindowInsetsListener(appBarLayout, (v, insets) -> {
+//                return insets;
+//            });
+//        } else {
+//            Log.e("Home", "AppBarLayout is null");
+//        }
 
         SpotifiDatabase db = SpotifiDatabase.getInstance(this);
         RecyclerView songRecyclerView = findViewById(R.id.songRecyclerView);
@@ -87,14 +91,10 @@ public class Home extends BaseActivity {
             List<Queue> currentQueue = db.queueDAO().loadAllQueues();
             int songOrder = currentQueue.size() + 1;
             Queue queue = new Queue();
-            queue.setQueueId(currentQueue.size() + 1);
+            //queue.setQueueId(currentQueue.size() + 1);
             queue.setSongOrder(songOrder);
             queue.setStatus("Paused");
             queue.setSongId(song.getId());
-//        queue.setSongTitle(song.getTitle());
-//        queue.setSongUrl(song.getUrl());
-//        queue.setSongArtist(song.getArtist());
-//        queue.setSongThumbnail(song.getThumbnail());
 
             // Use executor service to run the database operation in a background thread
 
@@ -129,6 +129,12 @@ public class Home extends BaseActivity {
                 Toast.makeText(this, "New queue started with: " + song.getTitle(), Toast.LENGTH_SHORT).show();
             });
         });
+    }
+
+    private void showBottomDialog(){
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.activity_playing_music);
     }
 
     @Override

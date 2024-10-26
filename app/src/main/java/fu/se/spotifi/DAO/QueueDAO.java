@@ -37,8 +37,9 @@ public interface QueueDAO {
     @Query("SELECT * FROM queue WHERE songOrder = :nextOrder")
     Queue getSongByOrder(int nextOrder);
 
-    @Query("SELECT * FROM queue WHERE songId = :songId")
-    Queue getSongFromQueue(int songId);
+    @Query("SELECT songId FROM queue")
+    List<Integer> getSongsFromQueue();
+
 }
 
 
