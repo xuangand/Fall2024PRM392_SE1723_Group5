@@ -49,4 +49,5 @@ dependencies {
     implementation (libs.ffmpegmediametadataretriever.native)
     implementation (libs.firebase.storage)
     implementation (libs.glide)
+    implementation(libs.media3.exoplayer)
 }

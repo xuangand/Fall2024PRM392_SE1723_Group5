@@ -77,4 +77,8 @@ public class Song implements Serializable {
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
     }
+    @Override
+    public String toString(){
+        return title + " - " + artist;
+    }
 }
