@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -13,15 +14,21 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import fu.se.spotifi.Adapters.PlaylistAdapter;
 import fu.se.spotifi.DAO.PlaylistDAO;
 import fu.se.spotifi.DAO.SongListDAO;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Playlist;
+import fu.se.spotifi.Entities.Song;
+import fu.se.spotifi.Entities.SongList;
 import fu.se.spotifi.R;
 
 public class Library extends BaseActivity implements PlaylistAdapter.OnPlaylistOptionClickListener {
@@ -66,14 +73,17 @@ public class Library extends BaseActivity implements PlaylistAdapter.OnPlaylistO
             SongListDAO songListDAO = db.songListDAO();
             playlistList.clear();
             for (Playlist playlist : playlistDAO.loadAllPlaylist()) {
-                int songCount = songListDAO.loadAllSongList().stream()
+                List<SongList> songLists = songListDAO.loadAllSongList().stream()
                         .filter(songList -> songList.getPlaylistId() == playlist.getId())
-                        .mapToInt(songList -> 1)
-                        .sum();
+                        .collect(Collectors.toList());
+                int songCount = songLists.size();
                 playlist.setSongCount(songCount);
-                playlistList.add(playlist);
+
+                runOnUiThread(() -> {
+                    playlistList.add(playlist);
+                    playlistAdapter.notifyDataSetChanged();
+                });
             }
-            runOnUiThread(() -> playlistAdapter.notifyDataSetChanged());
         });
     }
 

@@ -66,25 +66,5 @@
         android:drawableStart="@drawable/ic_remove"
         android:drawablePadding="16dp"/>
 
-    <TextView
-        android:id="@+id/goToArtist"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Go to artist"
-        android:textColor="#FFFFFF"
-        android:padding="16dp"
-        android:drawableStart="@drawable/ic_face"
-        android:drawablePadding="16dp"/>
-
-    <TextView
-        android:id="@+id/viewSongCredits"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="View song credits"
-        android:textColor="#FFFFFF"
-        android:padding="16dp"
-        android:drawableStart="@drawable/ic_view_credits"
-        android:drawablePadding="16dp"/>
-
 </LinearLayout>
 <!-- End of Layout -->
