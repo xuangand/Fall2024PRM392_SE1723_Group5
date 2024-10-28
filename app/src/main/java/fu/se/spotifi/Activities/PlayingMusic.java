@@ -1,5 +1,8 @@
 package fu.se.spotifi.Activities;
 
+import android.app.Activity;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,9 +10,12 @@ import android.media.MediaPlayer;
 import android.media.session.MediaSession;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,14 +46,17 @@ import fu.se.spotifi.Entities.Playlist;
 import fu.se.spotifi.Entities.Queue;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.Entities.SongList;
+import fu.se.spotifi.MusicService;
 import fu.se.spotifi.R;
+import fu.se.spotifi.Widgets.MusicPlayerWidget;
+import fu.se.spotifi.Widgets.MusicWidgetService;
 
 public class PlayingMusic extends AppCompatActivity {
     private ScheduledExecutorService scheduledExecutorService;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(2);
     private final ExecutorService playerService = Executors.newSingleThreadExecutor();
     private MediaPlayer musicPlayer = new MediaPlayer();
-    ExoPlayer player;
+    static ExoPlayer player;
     private MediaSession mediaSession;
     Utils utils = new Utils();
 
@@ -406,6 +415,12 @@ public class PlayingMusic extends AppCompatActivity {
                     player.setMediaItem(mediaItem);
                     player.prepare();
                     player.play();
+                    updateCurrentSongWidget(this);
+                    Intent serviceIntent = new Intent(this, MusicService.class);
+                    serviceIntent.setAction("ACTION_PLAY");
+                    serviceIntent.putExtra("SONG_TITLE", selectedSongData.getTitle());
+                    serviceIntent.putExtra("SONG_ARTIST", selectedSongData.getArtist());
+                    startService(serviceIntent);
                 });
             } else {
                 runOnUiThread(() ->
@@ -413,6 +428,7 @@ public class PlayingMusic extends AppCompatActivity {
                 );
             }
         });
+
 //        runOnUiThread(() -> {
 //            title.setText(song.getTitle());
 //            artist.setText(song.getArtist());
@@ -435,21 +451,100 @@ public class PlayingMusic extends AppCompatActivity {
 //        selectedSong = song.getId(); // Update the current song ID
     }
 
-    private void loadPlaylistFromDatabase() {
-        executorService.execute(() -> {
-            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
-            List<Integer> currentQueue = db.queueDAO().getSongsFromQueue();
-            List<Song> songs = db.songDAO().getSongsFromQueue(currentQueue);
-            for (Song song : songs) {
-                playlist.add(MediaItem.fromUri(song.getUrl()));
-            }
-            runOnUiThread(() -> {
-                player.setMediaItems(playlist);
-                player.prepare();
-            });
-        });
-    }
+        private void loadPlaylistFromDatabase() {
+            executorService.execute(() -> {
+                SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+                List<Integer> currentQueue = db.queueDAO().getSongsFromQueue();
+                List<Song> songs = db.songDAO().getSongsFromQueue(currentQueue);
 
+                playlist.clear(); // Clear previous items from the playlist
+                for (Song song : songs) {
+                    playlist.add(MediaItem.fromUri(song.getUrl()));
+                }
+
+                runOnUiThread(() -> {
+                    player.setMediaItems(playlist);
+                    player.prepare();
+                    if (!playlist.isEmpty()) {
+                        player.play(); // Automatically start playing the first song
+                        updateCurrentSongWidget(this); // Update widget with the first song
+                    }
+                });
+            });
+        }
+
+        public static void togglePlayPause(Context context) {
+            if (player != null) {
+                if (player.isPlaying()) {
+                    player.pause();
+                } else {
+                    player.play();
+                }
+                // Update the widget with the current song info
+                updateCurrentSongWidget(context);
+            }
+        }
+
+        public static void playNext(Context context) {
+            if (player != null) {
+                player.seekToNextMediaItem();
+                updateCurrentSongWidget(context);
+            }
+        }
+
+        public static void playPrevious(Context context) {
+            if (player != null) {
+                player.seekToPreviousMediaItem();
+                updateCurrentSongWidget(context);
+            }
+        }
+
+        private static void updateCurrentSongWidget(Context context) {
+            MediaItem currentItem = player.getCurrentMediaItem();
+            if (currentItem != null) {
+                Log.d("MusicWidget", "Current item: " + currentItem.mediaId);
+                getSongFromMediaItem(context, currentItem, song -> {
+                    if (song != null) {
+                        Log.d("MusicWidget", "Updating widget with song: " + song.getTitle());
+                        updateWidget(context, song.getTitle(), song.getArtist());
+                    } else {
+                        Log.d("MusicWidget", "Song not found in database.");
+                    }
+                });
+            } else {
+                Log.d("MusicWidget", "No current item found.");
+            }
+        }
+
+        // Update this helper method to accept Context
+        private static void getSongFromMediaItem(Context context, MediaItem mediaItem, SongCallback callback) {
+            executorService.execute(() -> {
+                SpotifiDatabase db = SpotifiDatabase.getInstance(context);
+                String songUrl = mediaItem.localConfiguration.uri.toString();
+                Log.d("MusicWidget", "Querying song with URL: " + songUrl);
+                Song song = db.songDAO().getSongByUrl(songUrl);
+                new Handler(Looper.getMainLooper()).post(() -> callback.onSongRetrieved(song));
+            });
+        }
+
+        // Callback interface to handle song retrieval
+        interface SongCallback {
+            void onSongRetrieved(Song song);
+        }
+
+    // Update widget method provided
+    public static void updateWidget(Context context, String songTitle, String artistName) {
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, MusicPlayerWidget.class));
+
+        for (int appWidgetId : appWidgetIds) {
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_music_player);
+            views.setTextViewText(R.id.widget_song_title, songTitle);
+            views.setTextViewText(R.id.widget_artist_name, artistName);
+
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+        }
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -463,9 +558,6 @@ public class PlayingMusic extends AppCompatActivity {
         }
     }
 
-    interface SongCallback {
-        void onSongRetrieved(Song song);
-    }
 
     private final Handler handler = new Handler();
     private final Runnable updateSeekBarRunnable = new Runnable() {
@@ -516,4 +608,6 @@ public class PlayingMusic extends AppCompatActivity {
 //            ffmmr.release();
 //        }
     //</editor-fold>
+
+
 }

@@ -207,12 +207,23 @@ public class SearchActivity extends BaseActivity implements SongAdapter.OnItemCl
     private void saveSongToDatabase(Song song) {
         executorService.execute(() -> {
             try {
-                database.songDAO().addSong(song);
-                runOnUiThread(() ->
-                        Toast.makeText(SearchActivity.this,
-                                "Song saved to library",
-                                Toast.LENGTH_SHORT).show()
-                );
+                Song existingSong = database.songDAO().getSongByTitleAndArtist(song.getTitle(), song.getArtist());
+
+                if (existingSong == null) {
+                    song.setThumbnail(song.getUrl());
+                    database.songDAO().addSong(song);  // Add song if not already in database
+                    runOnUiThread(() ->
+                            Toast.makeText(SearchActivity.this,
+                                    "Song saved to library",
+                                    Toast.LENGTH_SHORT).show()
+                    );
+                } else {
+                    runOnUiThread(() ->
+                            Toast.makeText(SearchActivity.this,
+                                    "Song already in library",
+                                    Toast.LENGTH_SHORT).show()
+                    );
+                }
             } catch (Exception e) {
                 runOnUiThread(() ->
                         Toast.makeText(SearchActivity.this,

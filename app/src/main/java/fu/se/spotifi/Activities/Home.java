@@ -76,12 +76,13 @@ public class Home extends BaseActivity {
 
     private void onSongClick(Song song) {
         // Add the clicked song to the queue
-        addToQueue(song); // Assuming addQueue is the method to add to the queue
+
+        addNewQueue(song); // Assuming addQueue is the method to add to the queue
     }
 
 
     private void onSongLongClick(Song song) {
-        addNewQueue(song);
+        addToQueue(song);
     }
 
     private void addToQueue(Song song) {

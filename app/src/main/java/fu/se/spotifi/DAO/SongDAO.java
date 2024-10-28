@@ -38,4 +38,8 @@ public interface SongDAO {
     Song getSongByUrl(String string);
     @Query("SELECT * FROM songs WHERE id IN (:queueList)")
     List<Song> getSongsFromQueue(List<Integer> queueList);
+
+    @Query("SELECT * FROM songs WHERE title = :title AND artist = :artist LIMIT 1")
+    Song getSongByTitleAndArtist(String title, String artist);
+
 }
