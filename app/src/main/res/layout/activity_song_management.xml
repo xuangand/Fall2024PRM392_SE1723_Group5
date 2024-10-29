@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -9,17 +9,20 @@
     tools:context=".Activities.SongManagement">
 
     <LinearLayout
+        android:id="@+id/idField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/textView1"
             android:layout_width="13dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Id"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:text="Id" />
 
         <EditText
             android:id="@+id/edtId"
@@ -31,17 +34,21 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/urlField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/idField"
+        >
 
         <TextView
             android:id="@+id/textView2"
             android:layout_width="13dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="SongUrl"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:text="SongUrl" />
 
         <EditText
             android:id="@+id/edtName"
@@ -51,11 +58,15 @@
             android:ems="10"
             android:inputType="text" />
     </LinearLayout>
+
     <LinearLayout
+        android:id="@+id/btnField1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/urlField">
 
         <Button
             android:id="@+id/btnInsert"
@@ -75,9 +86,12 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/btnField2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnField1">
 
         <Button
             android:id="@+id/btnDelete"
@@ -94,9 +108,20 @@
             android:layout_weight="1"
             android:text="Load" />
     </LinearLayout>
+
     <ListView
         android:id="@+id/lv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnField2"/>
 
-</LinearLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/menu_demo" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

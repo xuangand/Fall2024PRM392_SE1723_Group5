@@ -50,10 +50,10 @@ public class PlayingMusic extends AppCompatActivity {
     ExoPlayer player;
     private MediaSession mediaSession;
     Utils utils = new Utils();
-
+    private int currentPlaylistId = -1;
+    private boolean isShuffled = false;
 
     //<editor-fold defaultstate="collapsed" desc="Initialize selected song">
-    Intent getSong;
     int selectedSong = -1;
     private List<MediaItem> playlist = new ArrayList<>();
     //</editor-fold>
@@ -106,6 +106,16 @@ public class PlayingMusic extends AppCompatActivity {
 
         setupExoPlayer();
         loadPlaylistFromDatabase();
+
+        currentPlaylistId = getIntent().getIntExtra("playlistId", -1);
+        selectedSong = getIntent().getIntExtra("songId", -1);
+        isShuffled = getIntent().getBooleanExtra("isShuffled", false);
+
+        if (currentPlaylistId != -1) {
+            loadPlaylistAndPlay(currentPlaylistId, selectedSong);
+        } else if (selectedSong != -1) {
+            playSingleSong(selectedSong);
+        }
 
         selectedSong = getIntent().getIntExtra("songId", -1);
         if (selectedSong != -1) {
@@ -284,6 +294,82 @@ public class PlayingMusic extends AppCompatActivity {
         });
     }
 
+    private void loadPlaylistAndPlay(int playlistId, int startSongId) {
+        executorService.execute(() -> {
+            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+
+            // Get all songs from playlist
+            List<Song> songs = db.songListDAO().loadSongsByPlaylistId(playlistId);
+            if (songs.isEmpty()) return;
+
+            // Find index of start song
+            int startIndex = 0;
+            if (startSongId != -1) {
+                for (int i = 0; i < songs.size(); i++) {
+                    if (songs.get(i).getId() == startSongId) {
+                        startIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            // Create MediaItems
+            playlist.clear();
+            for (Song song : songs) {
+                MediaItem mediaItem = MediaItem.fromUri(song.getUrl())
+                        .buildUpon()
+                        .setMediaId(String.valueOf(song.getId()))
+                        .build();
+                playlist.add(mediaItem);
+            }
+
+            int finalStartIndex = startIndex;
+            runOnUiThread(() -> {
+                player.setMediaItems(playlist);
+                player.prepare();
+
+                // Enable shuffle if requested (before seeking to maintain start song)
+                player.setShuffleModeEnabled(isShuffled);
+
+                // Seek to starting song
+                player.seekTo(finalStartIndex, 0);
+                player.play();
+            });
+
+            // Update UI with first song
+            Song firstSong = songs.get(startIndex);
+            runOnUiThread(() -> {
+                title.setText(firstSong.getTitle());
+                artist.setText(firstSong.getArtist());
+                Glide.with(PlayingMusic.this)
+                        .load(firstSong.getThumbnail())
+                        .into(albumArt);
+            });
+        });
+    }
+
+    private void playSingleSong(int songId) {
+        executorService.execute(() -> {
+            SpotifiDatabase db = SpotifiDatabase.getInstance(this);
+            Song song = db.songDAO().getSongById(songId);
+
+            if (song != null) {
+                MediaItem mediaItem = MediaItem.fromUri(song.getUrl());
+                runOnUiThread(() -> {
+                    player.setMediaItem(mediaItem);
+                    player.prepare();
+                    player.play();
+
+                    title.setText(song.getTitle());
+                    artist.setText(song.getArtist());
+                    Glide.with(PlayingMusic.this)
+                            .load(song.getThumbnail())
+                            .into(albumArt);
+                });
+            }
+        });
+    }
+
     private void updateUIForMediaItem(MediaItem mediaItem) {
         getSongFromMediaItem(mediaItem, song -> {
             if (song != null) {
@@ -361,14 +447,27 @@ public class PlayingMusic extends AppCompatActivity {
     private void saveSongToPlaylist(String playlistName) {
         executorService.execute(() -> {
             SpotifiDatabase db = SpotifiDatabase.getInstance(this);
-            selectedSong = getSong.getIntExtra("songId", -1);
-            Playlist playlist = db.playlistDAO().getPlaylistByName(playlistName);
-            if (playlist != null) {
-                SongList songList = new SongList(playlist.getId(), selectedSong);
-                db.playlistDAO().addSongToPlaylist(songList);
-                runOnUiThread(() -> Toast.makeText(this, "Song added to " + playlistName, Toast.LENGTH_SHORT).show());
+            int songToSave = getIntent().getIntExtra("songId", -1);
+
+            // If songId is not in intent, try getting it from the selectedSong field
+            if (songToSave == -1) {
+                songToSave = selectedSong;
+            }
+
+            // Final variable for use
+            final int finalSongId = songToSave;
+
+            if (finalSongId != -1) {
+                Playlist playlist = db.playlistDAO().getPlaylistByName(playlistName);
+                if (playlist != null) {
+                    SongList songList = new SongList(playlist.getId(), finalSongId);
+                    db.playlistDAO().addSongToPlaylist(songList);
+                    runOnUiThread(() -> Toast.makeText(this, "Song added to " + playlistName, Toast.LENGTH_SHORT).show());
+                } else {
+                    runOnUiThread(() -> Toast.makeText(this, "Playlist not found", Toast.LENGTH_SHORT).show());
+                }
             } else {
-                runOnUiThread(() -> Toast.makeText(this, "Playlist not found", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this, "No song selected", Toast.LENGTH_SHORT).show());
             }
         });
     }

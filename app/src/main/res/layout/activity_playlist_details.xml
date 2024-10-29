@@ -46,15 +46,6 @@
             android:scaleType="centerCrop"
             android:src="@drawable/album_cover_image"/>
 
-        <TextView
-            android:id="@+id/playlistDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Playlist Description"
-            android:gravity="center"
-            android:textColor="#b8b8b8"
-            android:textSize="14sp"
-            android:layout_marginTop="8dp"/>
     </LinearLayout>
 
     <!-- Buttons -->
@@ -114,3 +105,4 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

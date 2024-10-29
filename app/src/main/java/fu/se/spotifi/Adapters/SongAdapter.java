@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import fu.se.spotifi.Activities.ArtistDetail;
 import fu.se.spotifi.Activities.PlayingMusic;
 import fu.se.spotifi.Activities.PlaylistDetails;
+import fu.se.spotifi.Activities.SongDetails;
 import fu.se.spotifi.Const.Utils;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Song;
@@ -115,6 +117,12 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewHolder.duration.setText(utils.milisecondsToString(song.getDuration()));
             Glide.with(context).load(song.getThumbnail()).into(viewHolder.songThumbnail);
 
+            viewHolder.itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onItemClick(song);
+                }
+            });
+
             viewHolder.itemView.setOnLongClickListener(v -> {
                 showEditPlaylistDialog(song);
                 return true;
@@ -193,8 +201,6 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         TextView addToQueue = dialog.findViewById(R.id.addToQueue);
         TextView removeFromPlaylist = dialog.findViewById(R.id.removeFromPlaylist);
-        TextView goToArtist = dialog.findViewById(R.id.goToArtist);
-        TextView viewSongCredits = dialog.findViewById(R.id.viewSongCredits);
 
         // Set initial values if needed
         // For example, you can set the song details in the dialog
@@ -212,17 +218,6 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             dialog.dismiss();
             Toast.makeText(context, "Removed from playlist", Toast.LENGTH_SHORT).show();
         });
-
-        goToArtist.setOnClickListener(v -> {
-            // Handle go to artist action
-            dialog.dismiss();
-        });
-
-        viewSongCredits.setOnClickListener(v -> {
-            // Handle view song credits action
-            dialog.dismiss();
-        });
-
         dialog.show();
     }
 

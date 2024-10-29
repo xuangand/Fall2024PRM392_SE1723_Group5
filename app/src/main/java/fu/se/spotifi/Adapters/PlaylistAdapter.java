@@ -1,5 +1,6 @@
 package fu.se.spotifi.Adapters;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,10 +16,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import fu.se.spotifi.Activities.PlaylistDetails;
+import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Playlist;
+import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.R;
 
 public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHolder> {
@@ -46,6 +54,21 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
         holder.playlistName.setText(playlist.getName());
         holder.playlistThumbnail.setImageResource(playlist.getThumbnail());
         holder.playlistSongCount.setText(playlist.getSongCount() + " songs");
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(() -> {
+            SpotifiDatabase db = SpotifiDatabase.getInstance(context);
+            List<Song> songLists = db.songListDAO().loadSongsByPlaylistId(playlist.getId());
+            if (!songLists.isEmpty()) {
+                Song firstSong = db.songDAO().getSongById(songLists.get(0).getId());
+                if (firstSong != null) {
+                    // Update the UI on the main thread
+                    ((Activity) context).runOnUiThread(() -> Glide.with(holder.playlistThumbnail.getContext())
+                            .load(firstSong.getThumbnail())
+                            .into(holder.playlistThumbnail));
+                }
+            }
+        });
 
         holder.optionsButton.setOnClickListener(v -> showPopupMenu(v, position));
 
@@ -108,5 +131,18 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
     public interface OnPlaylistOptionClickListener {
         void onEditClick(Playlist playlist);
         void onDeleteClick(Playlist playlist);
+    }
+
+    public void setPlaylistCoverImage(ImageView imageView, Playlist playlist, List<Song> songs) {
+        if (imageView == null) {
+            return; // Add a null check to avoid NullPointerException
+        }
+        if (songs != null && !songs.isEmpty()) {
+            Glide.with(imageView.getContext())
+                    .load(songs.get(0).getThumbnail())
+                    .into(imageView);
+        } else {
+            imageView.setImageResource(R.drawable.album_cover_image); // Set your default image resource
+        }
     }
 }
