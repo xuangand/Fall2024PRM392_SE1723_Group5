@@ -34,6 +34,9 @@ public class BaseActivity extends AppCompatActivity {
                 startActivity(new Intent(this, SearchActivity.class));
 
                 return true;
+            }else if (itemId == R.id.settings && !(this instanceof SongManagement)) {
+                startActivity(new Intent(this, SongManagement.class));
+                return true;
             }
             // Add other menu items here
             return false;
@@ -53,6 +56,8 @@ public class BaseActivity extends AppCompatActivity {
 
             } else if(this instanceof SearchActivity){
                 itemId = R.id.search;
+            }else if (this instanceof SongManagement){
+                itemId = R.id.settings;
             }else {
                 // Default or handle other activities
                 return;
