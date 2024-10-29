@@ -49,7 +49,8 @@ public class SearchActivity extends BaseActivity implements SongAdapter.OnItemCl
     private StorageReference storageRef;
     private ExecutorService executorService;
     private SpotifiDatabase database;
-
+    private long lastSearchTime = 0;
+    private static final long DEBOUNCE_DELAY_MS = 300;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,90 +130,67 @@ public class SearchActivity extends BaseActivity implements SongAdapter.OnItemCl
         // Handle long click if needed
         // For example, show additional options
     }
+
     private void performSearch(String query) {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastSearchTime < DEBOUNCE_DELAY_MS) return; // Only perform search after debounce delay
+        lastSearchTime = currentTime;
+
         executorService.execute(() -> {
             try {
-                // List all items in the songs directory
                 ListResult result = Tasks.await(storageRef.listAll());
                 ArrayList<Song> newResults = new ArrayList<>();
-
                 for (StorageReference item : result.getItems()) {
-                    String fileName = item.getName().toLowerCase();
-                    if (fileName.contains(query.toLowerCase())) {
-                        // Get download URL
+                    if (item.getName().toLowerCase().contains(query.toLowerCase())) {
                         String url = Tasks.await(item.getDownloadUrl()).toString();
-
-                        // Create song object
-                        Song song = createSongFromStorageItem(fileName, url);
+                        Song song = createSongFromStorageItem(item.getName(), url);
                         newResults.add(song);
                     }
                 }
-
-                // Update UI on main thread
-                runOnUiThread(() -> {
-                    searchResults.clear();
-                    searchResults.addAll(newResults);
-                    songAdapter.notifyDataSetChanged();
-                });
-
+                runOnUiThread(() -> updateSearchResults(newResults));
             } catch (Exception e) {
                 runOnUiThread(() ->
-                        Toast.makeText(SearchActivity.this,
-                                "Search failed: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show()
+                        Toast.makeText(SearchActivity.this, "Search failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                 );
             }
         });
     }
+    private void updateSearchResults(ArrayList<Song> newResults) {
+        searchResults.clear();
+        searchResults.addAll(newResults);
+        songAdapter.notifyDataSetChanged();
+    }
 
     private Song createSongFromStorageItem(String fileName, String url) throws IOException {
+        String title = fileName.substring(0, fileName.lastIndexOf('.')).replace('_', ' ');
+        String artist = "Unknown";
+        String duration = "0:00";
+        String thumbnail = url;
+
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
-            // Set the data source to the file's URL
             retriever.setDataSource(url);
+            String tempTitle = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            String tempArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            String tempDuration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
 
-            // Extract metadata
-            String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            String artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION); // duration in milliseconds
+            title = tempTitle != null ? tempTitle : title;
+            artist = tempArtist != null ? tempArtist : artist;
+            duration = tempDuration != null ? convertMillisecondsToTime(Long.parseLong(tempDuration)) : duration;
 
-            // Default values if metadata is missing
-            if (title == null) {
-                // Remove file extension and use filename as the title
-                title = fileName.substring(0, fileName.lastIndexOf('.')).replace('_', ' ');
-            }
-            if (artist == null) {
-                artist = "Unknown"; // Default if artist is not available
-            }
-            if (duration != null) {
-                // Convert duration from milliseconds to "mm:ss" format
-                long durationMs = Long.parseLong(duration);
-                duration = convertMillisecondsToTime(durationMs); // Method to convert ms to "mm:ss"
-            } else {
-                duration = "0:00"; // Default duration
-            }
-
-            // Extract thumbnail (album art) if available
             byte[] artwork = retriever.getEmbeddedPicture();
-            String thumbnail;
             if (artwork != null) {
-                // Convert byte[] to a base64 string or save it to the device and use a URL
                 thumbnail = "data:image/jpeg;base64," + Base64.encodeToString(artwork, Base64.DEFAULT);
-            } else {
-                thumbnail = "default_thumbnail_url"; // Default thumbnail if artwork is not available
             }
-
-            // Return a new Song object with extracted metadata
-            return new Song(title, artist, url, duration, thumbnail);
-
         } catch (Exception e) {
             e.printStackTrace();
-            // Return a song with default values in case of an error
-            return new Song(fileName, "Unknown", url, "0:00", "default_thumbnail_url");
         } finally {
-            retriever.release(); // Always release the retriever
+            retriever.release();
         }
+
+        return new Song(title, artist, url, duration, thumbnail);
     }
+
 
     // Helper method to convert milliseconds to "mm:ss" format
     private String convertMillisecondsToTime(long milliseconds) {
@@ -229,12 +207,23 @@ public class SearchActivity extends BaseActivity implements SongAdapter.OnItemCl
     private void saveSongToDatabase(Song song) {
         executorService.execute(() -> {
             try {
-                database.songDAO().addSong(song);
-                runOnUiThread(() ->
-                        Toast.makeText(SearchActivity.this,
-                                "Song saved to library",
-                                Toast.LENGTH_SHORT).show()
-                );
+                Song existingSong = database.songDAO().getSongByTitleAndArtist(song.getTitle(), song.getArtist());
+
+                if (existingSong == null) {
+                    song.setThumbnail(song.getUrl());
+                    database.songDAO().addSong(song);  // Add song if not already in database
+                    runOnUiThread(() ->
+                            Toast.makeText(SearchActivity.this,
+                                    "Song saved to library",
+                                    Toast.LENGTH_SHORT).show()
+                    );
+                } else {
+                    runOnUiThread(() ->
+                            Toast.makeText(SearchActivity.this,
+                                    "Song already in library",
+                                    Toast.LENGTH_SHORT).show()
+                    );
+                }
             } catch (Exception e) {
                 runOnUiThread(() ->
                         Toast.makeText(SearchActivity.this,
