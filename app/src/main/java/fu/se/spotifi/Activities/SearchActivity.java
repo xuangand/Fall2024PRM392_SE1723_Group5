@@ -1,5 +1,8 @@
 package fu.se.spotifi.Activities;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.util.Base64;
@@ -14,6 +17,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +28,7 @@ import fu.se.spotifi.Adapters.SongAdapter;
 import fu.se.spotifi.Database.SpotifiDatabase;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.R;
+import wseemann.media.FFmpegMediaMetadataRetriever;
 
 public class SearchActivity extends BaseActivity implements SongAdapter.OnItemClickListener, SongAdapter.OnItemLongClickListener {
     private SearchView searchView;
@@ -194,8 +200,14 @@ public class SearchActivity extends BaseActivity implements SongAdapter.OnItemCl
                 Song existingSong = database.songDAO().getSongByTitleAndArtist(song.getTitle(), song.getArtist());
 
                 if (existingSong == null) {
-                    song.setThumbnail(song.getUrl());
-                    database.songDAO().addSong(song);  // Add song if not already in database
+                    // Generate thumbnail using album art
+                    File albumArtFile = retrieveAlbumArt(SearchActivity.this, song.getUrl(), song.getTitle());
+                    String thumbnailPath = albumArtFile != null ? albumArtFile.getAbsolutePath() : song.getUrl();
+
+                    // Set the local thumbnail path
+                    song.setThumbnail(thumbnailPath);
+                    database.songDAO().addSong(song);
+
                     runOnUiThread(() ->
                             Toast.makeText(SearchActivity.this,
                                     "Song saved to library",
@@ -217,5 +229,29 @@ public class SearchActivity extends BaseActivity implements SongAdapter.OnItemCl
             }
         });
     }
+
+    public File retrieveAlbumArt(Context context, String musicFilePath, String title) {
+        FFmpegMediaMetadataRetriever retriever = new FFmpegMediaMetadataRetriever();
+        try {
+            retriever.setDataSource(musicFilePath);
+            byte[] albumArt = retriever.getEmbeddedPicture();
+
+            if (albumArt != null) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length);
+                // Save the file in the app's internal storage
+                File outputFile = new File(context.getCacheDir(), title + "_cover.png");
+                FileOutputStream out = new FileOutputStream(outputFile);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                out.close();
+                return outputFile;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            retriever.release();
+        }
+        return null;
+    }
+
 }
 

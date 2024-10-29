@@ -119,7 +119,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewHolder.itemView.setOnClickListener(v -> {
                 // Call method to clear the queue and add the new song
                 addNewQueue(song);
-
+            });
 
             viewHolder.itemView.setOnClickListener(v -> {
                 if (listener != null) {
@@ -133,6 +133,8 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         }
     }
+
+
     private void showPopupMenu(View view, Song song) {
         PopupMenu popupMenu = new PopupMenu(context, view);
         popupMenu.inflate(R.menu.popup_menu); // Inflate your popup menu layout
@@ -238,4 +240,5 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         });
     }
-}
+
+    }

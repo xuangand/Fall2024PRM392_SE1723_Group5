@@ -17,7 +17,7 @@ import fu.se.spotifi.Entities.Queue;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.Entities.SongList;
 
-@Database(entities = {Song.class, Playlist.class, SongList.class, Queue.class}, version = 2,exportSchema = false)
+@Database(entities = {Song.class, Playlist.class, SongList.class, Queue.class}, version = 1,exportSchema = false)
 @TypeConverters({Utils.class})
 public abstract class SpotifiDatabase extends RoomDatabase {
     private static volatile SpotifiDatabase INSTANCE;
@@ -39,7 +39,7 @@ public abstract class SpotifiDatabase extends RoomDatabase {
     public abstract SongDAO songDAO();
     public abstract PlaylistDAO playlistDAO();
     public abstract SongListDAO songListDAO();
-    public abstract SearchHistoryDAO searchHistoryDAO();
+
 }
 
 
