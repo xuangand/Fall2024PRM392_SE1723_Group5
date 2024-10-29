@@ -97,11 +97,13 @@ public class PlayingMusicTabView extends ConstraintLayout {
         executorService.execute(() -> {
             SpotifiDatabase db = SpotifiDatabase.getInstance(getContext());
             Song song = db.songDAO().getSongById(selectedSong);
-            currentSongTitle.setText(song.getTitle());
-            currentArtist.setText(song.getArtist());
+            if(song != null) {
+                currentSongTitle.setText(song.getTitle());
+                currentArtist.setText(song.getArtist());
 
-            Activity activity = (Activity) getContext();
-            activity.runOnUiThread(() -> Glide.with(getContext()).load(song.getThumbnail()).into(currentSongThumbnail));
+                Activity activity = (Activity) getContext();
+                activity.runOnUiThread(() -> Glide.with(getContext()).load(song.getThumbnail()).into(currentSongThumbnail));
+            }
         });
     }
     private void updateClickability(boolean isClickable, int selectedSong) {

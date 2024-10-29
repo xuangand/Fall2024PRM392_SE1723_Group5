@@ -49,7 +49,7 @@ import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.R;
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
-public class SongManagement extends AppCompatActivity {
+public class SongManagement extends BaseActivity {
     private Button btnInsert, btnUpdate, btnDelete, btnLoad;
     private EditText edtId, edtName;
     private ListView lv;
@@ -114,6 +114,7 @@ public class SongManagement extends AppCompatActivity {
                 edtName.setText(songList.get(position).getUrl());
             }
         });
+        setupBottomNavigation();
     }
     public void ShowList(){
         songList.clear();

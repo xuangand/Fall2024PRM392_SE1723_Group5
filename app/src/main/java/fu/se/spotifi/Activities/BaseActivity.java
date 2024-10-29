@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.R;
 
 public class BaseActivity extends AppCompatActivity {
@@ -28,8 +29,10 @@ public class BaseActivity extends AppCompatActivity {
             } else if (itemId == R.id.library && !(this instanceof Library)) {
                 startActivity(new Intent(this, Library.class));
                 return true;
+
             }else if (itemId == R.id.search && !(this instanceof SearchActivity)) {
                 startActivity(new Intent(this, SearchActivity.class));
+
                 return true;
             }
             // Add other menu items here
@@ -47,12 +50,14 @@ public class BaseActivity extends AppCompatActivity {
                 itemId = R.id.home;
             } else if (this instanceof Library) {
                 itemId = R.id.library;
+
             } else if(this instanceof SearchActivity){
                 itemId = R.id.search;
             }else {
                 // Default or handle other activities
                 return;
             }
+
             bottomNavigationView.setSelectedItemId(itemId);
         }
     }

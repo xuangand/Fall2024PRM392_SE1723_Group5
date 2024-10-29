@@ -35,7 +35,7 @@ public abstract class SpotifiDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
-public abstract QueueDAO queueDAO();
+    public abstract QueueDAO queueDAO();
     public abstract SongDAO songDAO();
     public abstract PlaylistDAO playlistDAO();
     public abstract SongListDAO songListDAO();
