@@ -48,10 +48,9 @@ public class BaseActivity extends AppCompatActivity {
                 itemId = R.id.home;
             } else if (this instanceof Library) {
                 itemId = R.id.library;
-            } else {
-                // Default or handle other activities
-                return;
-            }
+            } else if (this instanceof SongManagement){
+                itemId = R.id.settings;
+            }else return;
             bottomNavigationView.setSelectedItemId(itemId);
         }
     }
