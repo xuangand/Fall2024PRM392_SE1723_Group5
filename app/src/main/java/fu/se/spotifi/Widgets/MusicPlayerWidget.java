@@ -47,3 +47,4 @@ public class MusicPlayerWidget extends AppWidgetProvider {
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 }
+

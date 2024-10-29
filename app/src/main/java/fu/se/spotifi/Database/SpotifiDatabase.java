@@ -10,16 +10,14 @@ import androidx.room.TypeConverters;
 import fu.se.spotifi.Const.Utils;
 import fu.se.spotifi.DAO.PlaylistDAO;
 import fu.se.spotifi.DAO.QueueDAO;
-import fu.se.spotifi.DAO.SearchHistoryDAO;
 import fu.se.spotifi.DAO.SongDAO;
 import fu.se.spotifi.DAO.SongListDAO;
 import fu.se.spotifi.Entities.Playlist;
 import fu.se.spotifi.Entities.Queue;
-import fu.se.spotifi.Entities.SearchHistory;
 import fu.se.spotifi.Entities.Song;
 import fu.se.spotifi.Entities.SongList;
 
-@Database(entities = {Song.class, Playlist.class, SongList.class, Queue.class, SearchHistory.class}, version = 2,exportSchema = false)
+@Database(entities = {Song.class, Playlist.class, SongList.class, Queue.class}, version = 2,exportSchema = false)
 @TypeConverters({Utils.class})
 public abstract class SpotifiDatabase extends RoomDatabase {
     private static volatile SpotifiDatabase INSTANCE;
