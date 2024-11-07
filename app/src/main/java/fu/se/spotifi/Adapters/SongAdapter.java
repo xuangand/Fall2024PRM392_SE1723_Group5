@@ -79,7 +79,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // Use the isHomeActivity flag to determine which layout to use
         return isHomeActivity ? HOME_VIEW_TYPE : NORMAL_VIEW_TYPE;
     }
-
+    
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Song song = songs.get(position);
@@ -116,6 +116,10 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewHolder.songArtist.setText(song.getArtist());
             viewHolder.duration.setText(utils.milisecondsToString(song.getDuration()));
             Glide.with(context).load(song.getThumbnail()).into(viewHolder.songThumbnail);
+            viewHolder.itemView.setOnClickListener(v -> {
+                // Call method to clear the queue and add the new song
+                addNewQueue(song);
+            });
 
             viewHolder.itemView.setOnClickListener(v -> {
                 if (listener != null) {
@@ -129,6 +133,8 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         }
     }
+
+
     private void showPopupMenu(View view, Song song) {
         PopupMenu popupMenu = new PopupMenu(context, view);
         popupMenu.inflate(R.menu.popup_menu); // Inflate your popup menu layout
@@ -160,6 +166,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             songTitle = itemView.findViewById(R.id.songTitle);
             songArtist = itemView.findViewById(R.id.songArtist);
             duration = itemView.findViewById(R.id.songDuration);
+
             songThumbnail = itemView.findViewById(R.id.songThumbnail);
             optionsButton = itemView.findViewById(R.id.optionsButton);
 
@@ -182,13 +189,13 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public interface OnSongClickListener {
         void onSongClick(Song song);
     }
-    private void addToQueue(Song song) {
+    private void addNewQueue(Song song) {
         // Notify the listener if it's set
         if (listener != null) {
             listener.onItemClick(song); // Call the listener's method
         }
     }
-    private void addNewQueue(Song song) {
+    private void addToQueue(Song song) {
         // Notify the listener if it's set
         if (longListener != null) {
             longListener.onItemLongClick(song); // Call the listener's method
@@ -233,4 +240,5 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         });
     }
-}
+
+    }

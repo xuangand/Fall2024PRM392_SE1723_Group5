@@ -29,7 +29,12 @@ public class BaseActivity extends AppCompatActivity {
             } else if (itemId == R.id.library && !(this instanceof Library)) {
                 startActivity(new Intent(this, Library.class));
                 return true;
-            } else if (itemId == R.id.settings && !(this instanceof SongManagement)) {
+
+            }else if (itemId == R.id.search && !(this instanceof SearchActivity)) {
+                startActivity(new Intent(this, SearchActivity.class));
+
+                return true;
+            }else if (itemId == R.id.settings && !(this instanceof SongManagement)) {
                 startActivity(new Intent(this, SongManagement.class));
                 return true;
             }
@@ -48,9 +53,16 @@ public class BaseActivity extends AppCompatActivity {
                 itemId = R.id.home;
             } else if (this instanceof Library) {
                 itemId = R.id.library;
-            } else if (this instanceof SongManagement){
+
+            } else if(this instanceof SearchActivity){
+                itemId = R.id.search;
+            }else if (this instanceof SongManagement){
                 itemId = R.id.settings;
-            }else return;
+            }else {
+                // Default or handle other activities
+                return;
+            }
+
             bottomNavigationView.setSelectedItemId(itemId);
         }
     }
